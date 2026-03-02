@@ -16,7 +16,6 @@
     --accent: #00e5d4; --accent2: #6e52ff; --red: #ff4d6d; --yellow: #f5c518;
   }
   
-  /* Use dvh to prevent mobile browser UI from overlapping the bottom */
   html, body { height: 100dvh; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; }
 
   /* ── Top Bar ── */
@@ -65,7 +64,6 @@
   .auto-btn.active { background: rgba(245, 197, 24, 0.1); color: var(--yellow); border-color: var(--yellow); }
 
   /* ── Bottom List Area ── */
-  /* min-height:0 is CRITICAL to allow flex children to scroll properly */
   .list-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; min-height: 0; }
   .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--panel); flex-shrink: 0; }
   .tab-btn { flex: 1; padding: 14px 10px; background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; border-bottom: 2px solid transparent; }
@@ -263,7 +261,7 @@ let currentMode = 'ART';
 let activeTab = 'INV'; 
 let records = [];
 
-// Auto Mode States: 0=Off, 3=3s, 5=5s
+// Auto Mode States (Slower to avoid API Rate Limits)
 let autoState = 0; 
 let autoScanTimer = null;
 let countdownInterval = null;
@@ -279,7 +277,6 @@ const PROMPT_TEXT = `You are an expert vinyl record identifier specializing in e
 
 const PALETTE = ['#00e5d4', '#ff4d6d', '#f5c518', '#6e52ff', '#3b9eff', '#c462f5', '#f0c040', '#ff6ec7', '#f5832a', '#5ddb5d', '#a3e635', '#7b8cff', '#e8a87c'];
 let knownGenres = {};
-const discogsReleaseCache = new Map();
 
 // ==========================================
 // 2. UI & HELPERS
@@ -319,11 +316,11 @@ function flashColor(color) {
   setTimeout(() => flash.classList.remove('show'), 700);
 }
 
-// Auto Mode logic
+// Adjusted Auto Timers to respect Gemini Free Tier limits (15 requests/min)
 function cycleAutoMode() {
   const btn = document.getElementById('autoBtn');
-  if (autoState === 0) { autoState = 3; btn.textContent = 'Auto: 3s'; btn.classList.add('active'); }
-  else if (autoState === 3) { autoState = 5; btn.textContent = 'Auto: 5s'; btn.classList.add('active'); }
+  if (autoState === 0) { autoState = 6; btn.textContent = 'Auto: 6s'; btn.classList.add('active'); }
+  else if (autoState === 6) { autoState = 9; btn.textContent = 'Auto: 9s'; btn.classList.add('active'); }
   else { autoState = 0; btn.textContent = 'Auto: OFF'; btn.classList.remove('active'); }
   
   if (autoState > 0 && scanning === false) runAutoScanLoop(autoState * 1000);
@@ -353,7 +350,7 @@ async function runAutoScanLoop(delay) {
 }
 
 // ==========================================
-// 3. CAMERA SETUP
+// 3. CAMERA SETUP (Mobile Rear Cam)
 // ==========================================
 function startApp() {
   const key = document.getElementById('apiKeyInput').value.trim();
@@ -380,14 +377,12 @@ async function startCamera() {
   ctxSnap = canvasEl.getContext('2d');
 
   try {
-    // Force Rear Camera on mobile, max res
     const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'environment', width: { ideal: 2160 }, height: { ideal: 2160 } }, 
+      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }, 
       audio: false 
     });
     videoEl.srcObject = stream;
     videoEl.addEventListener('loadedmetadata', () => { videoEl.play(); }, { once: true });
-    setStatus('Camera connected \u2014 ready to scan', false);
   } catch(e) { alert('Camera access required. ' + e.message); }
 }
 
@@ -395,12 +390,9 @@ async function startCamera() {
 // 4. IMAGE PROCESSING & API CALLS
 // ==========================================
 async function captureAndPreprocess() {
-  // FULL FRAME CAPTURE (No restrictve squares, no weird cropping)
   const fw = videoEl.videoWidth, fh = videoEl.videoHeight;
   canvasEl.width = fw; canvasEl.height = fh;
   ctxSnap.drawImage(videoEl, 0, 0, fw, fh);
-  
-  // Minor contrast boost for OCR
   const out = document.createElement('canvas'); out.width = fw; out.height = fh;
   const oc = out.getContext('2d');
   oc.filter = 'contrast(1.15) brightness(1.05)';
@@ -408,12 +400,24 @@ async function captureAndPreprocess() {
   return out;
 }
 
-async function callGemini(b64, prompt) {
+// Includes auto-retry throttle to protect from 429 Rate Limits
+async function callGemini(b64, prompt, retries = 2) {
   const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: 'image/jpeg', data: b64 } }] }] })
   });
-  if (!resp.ok) throw new Error(resp.status === 429 ? 'Rate Limit (Too Fast)' : `API Error ${resp.status}`);
+  
+  if (resp.status === 429) {
+    if (retries > 0) {
+      setStatus('API cooling down... pausing 5s', true);
+      await new Promise(r => setTimeout(r, 5000));
+      return callGemini(b64, prompt, retries - 1);
+    } else {
+      throw new Error('Rate Limit (Too Fast) - Please wait 60s');
+    }
+  }
+  if (!resp.ok) throw new Error(`API Error ${resp.status}`);
+  
   const json = await resp.json();
   let raw = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
   let data = {};
@@ -487,7 +491,6 @@ async function processAIResult(data, b64Full, isTextMode) {
   const conf = parseFloat(data.confidence || 0);
   const id = 'V-' + crypto.randomUUID().substring(0, 6).toUpperCase();
 
-  // Duplicate Check
   const norm = s => (s||'').toLowerCase().replace(/[^a-z0-9]/g, '');
   const isDup = records.find(r => 
     (catalog && norm(catalog) === norm(r.catalog) && norm(catalog) !== 'unknown') ||
