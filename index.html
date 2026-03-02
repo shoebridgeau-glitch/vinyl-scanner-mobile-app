@@ -15,7 +15,9 @@
     --text: #e2e2ea; --muted: #55555f; --muted2: #3a3a44;
     --accent: #00e5d4; --accent2: #6e52ff; --red: #ff4d6d; --yellow: #f5c518;
   }
-  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; }
+  
+  /* Use dvh to prevent mobile browser UI from overlapping the bottom */
+  html, body { height: 100dvh; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; }
 
   /* ── Top Bar ── */
   .topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 20; }
@@ -29,103 +31,105 @@
   .settings-btn { background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px; }
 
   /* ── Main Layout: Stacked for Mobile ── */
-  .main-mobile { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+  .main-mobile { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
 
   /* ── Camera Area (Top Half) ── */
-  .cam-area { position: relative; height: 45vh; min-height: 300px; background: #000; flex-shrink: 0; overflow: hidden; }
-  /* No mirroring for rear phone cameras! */
+  .cam-area { position: relative; height: 42dvh; min-height: 250px; background: #000; flex-shrink: 0; overflow: hidden; }
   video { width: 100%; height: 100%; object-fit: cover; background: #000; }
-  .cam-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+  .cam-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 16px; pointer-events: none; }
   
-  .target-ring { width: 75vw; height: 75vw; max-width: 320px; max-height: 320px; border-radius: 12px; border: 2px dashed var(--accent); opacity: .5; transition: all .3s; box-shadow: 0 0 0 9999px rgba(0, 0, 0, .4); }
-  .target-ring.scanning { border-color: var(--red); animation: ringpulse 1s infinite; }
-  .target-ring.auto-active { border-color: var(--yellow); border-style: solid; opacity: 0.8; }
-  @keyframes ringpulse { 0%, 100% { opacity: .3; transform: scale(1) } 50% { opacity: 1; transform: scale(1.02) } }
+  .cam-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 700; background: rgba(0, 0, 0, 0.65); padding: 8px 16px; border-radius: 20px; backdrop-filter: blur(4px); transition: color 0.2s; text-align: center;}
+  .cam-label.scanning { color: var(--red); animation: pulse 1s infinite; }
   
-  .cam-label { position: absolute; bottom: 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 700; background: rgba(0, 0, 0, 0.6); padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(4px); }
-  .cam-label.scanning { color: var(--red); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
   
   .genre-flash { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity .05s; }
   .genre-flash.show { animation: flashIn .6s ease-out forwards; }
   @keyframes flashIn { 0% { opacity: .3 } 100% { opacity: 0 } }
 
   /* ── Thumb Controls Bar ── */
-  .controls-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border); z-index: 10; }
+  .controls-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border); z-index: 10; flex-shrink: 0; }
   
-  .mode-toggle { display: flex; flex-direction: column; gap: 4px; }
-  .mode-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 10px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; width: 100px; text-align: left; }
+  .mode-toggle { display: flex; flex-direction: column; gap: 6px; }
+  .mode-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 700; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; width: 105px; text-align: left; }
   .mode-btn.active { background: rgba(0, 229, 212, 0.1); color: var(--accent); border-color: var(--accent); }
   
   .scan-btn-wrap { position: relative; }
-  .scan-btn { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--accent); background: rgba(0, 229, 212, .1); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--accent); transition: transform 0.1s; }
+  .scan-btn { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--accent); background: rgba(0, 229, 212, .1); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--accent); transition: transform 0.1s; }
   .scan-btn:active { transform: scale(0.9); }
-  .scan-btn.scanning { border-color: var(--red); background: rgba(255, 77, 109, .15); animation: ringpulse 1s infinite; pointer-events: none; }
+  .scan-btn.scanning { border-color: var(--red); background: rgba(255, 77, 109, .15); pointer-events: none; }
   .scan-btn.auto-active { border-color: var(--yellow); background: rgba(245, 197, 24, .15); color: var(--yellow); }
 
-  .auto-toggle { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
-  .auto-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 6px 12px; border-radius: 6px; cursor: pointer; width: 85px; text-align: center; }
+  .auto-toggle { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .auto-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 8px 12px; border-radius: 8px; cursor: pointer; width: 90px; text-align: center; }
   .auto-btn.active { background: rgba(245, 197, 24, 0.1); color: var(--yellow); border-color: var(--yellow); }
 
   /* ── Bottom List Area ── */
-  .list-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-  .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--panel); }
-  .tab-btn { flex: 1; padding: 14px 10px; background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; border-bottom: 2px solid transparent; }
+  /* min-height:0 is CRITICAL to allow flex children to scroll properly */
+  .list-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; min-height: 0; }
+  .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--panel); flex-shrink: 0; }
+  .tab-btn { flex: 1; padding: 14px 10px; background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; border-bottom: 2px solid transparent; }
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; background: var(--card); }
 
-  .list-actions { display: flex; justify-content: space-between; padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--border); }
-  .btn-sm { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 11px; font-weight: 600; }
+  .list-actions { display: flex; justify-content: space-between; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .btn-sm { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 12px; font-weight: 600; }
   .btn-sm.accent { background: var(--accent); color: #000; border-color: var(--accent); }
 
-  .scan-list-wrap { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+  .scan-list-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
   
-  .scan-item { display: flex; gap: 10px; padding: 12px; border-bottom: 1px solid var(--border); position: relative; background: var(--card); }
+  .scan-item { display: flex; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); position: relative; background: var(--card); }
   .scan-item .bar { width: 4px; border-radius: 2px; flex-shrink: 0; align-self: stretch; }
-  .scan-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; background: #000; }
+  .scan-item img { width: 55px; height: 55px; object-fit: cover; border-radius: 6px; background: #000; border: 1px solid rgba(255,255,255,0.1); }
   
   .scan-info { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
-  .scan-artist { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .scan-title { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .scan-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-  .badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 3px 6px; border-radius: 4px; background: var(--panel); border: 1px solid var(--border); color: var(--text); }
+  .scan-artist { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scan-title { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scan-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 8px; border-radius: 4px; background: var(--panel); border: 1px solid var(--border); color: var(--text); }
   
-  .scan-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; flex-shrink: 0; min-width: 60px; }
-  .scan-price { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: var(--accent); text-align: right; }
-  .icon-btn-group { display: flex; gap: 12px; }
-  .icon-btn { background: transparent; border: none; color: var(--muted); font-size: 16px; padding: 4px; cursor: pointer; }
+  .scan-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; flex-shrink: 0; min-width: 65px; }
+  .scan-price { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--accent); text-align: right; }
+  .icon-btn-group { display: flex; gap: 14px; }
+  .icon-btn { background: transparent; border: none; color: var(--muted); font-size: 18px; padding: 4px; cursor: pointer; }
 
-  .action-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-  .action-btn { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-decoration: none; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); color: var(--text); background: var(--panel); }
+  .action-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .action-btn { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-decoration: none; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); color: var(--text); background: var(--panel); }
   
-  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); text-align: center; padding: 20px; }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
-  .empty-state p { font-size: 12px; line-height: 1.6; font-family: 'JetBrains Mono', monospace; }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); text-align: center; padding: 30px 20px; }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+  .empty-state p { font-size: 13px; line-height: 1.6; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Status bar ── */
+  .status-bar { background: var(--panel); border-top: 1px solid var(--border); padding: 8px 16px; font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; display: flex; align-items: center; gap: 10px; z-index: 20; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  .status-bar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .status-bar .dot.red { background: var(--red); }
+  .status-bar .dot.yellow { background: var(--yellow); }
+  .status-bar .msg { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* ── Modals (Adapted for Mobile) ── */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 16px; }
   .modal-overlay.show { display: flex; }
-  .modal-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
+  .modal-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; max-height: 85dvh; display: flex; flex-direction: column; overflow-y: auto; }
   
   /* Edition Scroll List */
-  .edition-scroll { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; margin: 16px 0; }
-  .edition-btn { display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
-  .edition-btn img { width: 60px; height: 60px; border-radius: 4px; object-fit: cover; background: #000; }
+  .edition-scroll { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+  .edition-btn { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+  .edition-btn img { width: 65px; height: 65px; border-radius: 6px; object-fit: cover; background: #000; border: 1px solid rgba(255,255,255,0.1); }
   .edition-info { display: flex; flex-direction: column; }
-  .edition-info strong { color: var(--accent); font-size: 13px; }
-  .edition-info span { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .edition-info strong { color: var(--accent); font-size: 14px; }
+  .edition-info span { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
   /* Setup Inputs */
-  .modal-card input { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 14px; outline: none; margin-bottom: 16px; }
-  .modal-card .btn-primary { width: 100%; padding: 14px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-size: 15px; font-weight: 700; }
+  .modal-card input { width: 100%; padding: 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 14px; outline: none; margin-bottom: 16px; }
+  .modal-card .btn-primary { width: 100%; padding: 16px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-size: 16px; font-weight: 700; cursor: pointer; }
 
   /* Confirmation specific */
-  .sc-edits { display: flex; gap: 10px; margin: 16px 0; }
+  .sc-edits { display: flex; gap: 12px; margin: 16px 0; }
   .sc-field { flex: 1; }
-  .sc-field label { font-size: 10px; color: var(--muted); display: block; margin-bottom: 4px; }
-  .sc-field input { margin-bottom: 0; padding: 10px; }
-  .sc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sc-field label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;}
+  .sc-field input { margin-bottom: 0; padding: 12px; }
+  .sc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .sc-actions .full { grid-column: 1 / -1; }
-
-  canvas#detectCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
 </style>
 </head>
 <body>
@@ -133,20 +137,21 @@
 <div class="modal-overlay" id="setupModal">
   <div class="modal-card">
     <h2 style="margin-bottom:16px;text-align:center;">API Setup</h2>
-    <label style="font-size:11px;color:var(--muted);margin-bottom:4px;">GEMINI API KEY <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);float:right;">Get Key</a></label>
+    <label style="font-size:12px;color:var(--muted);margin-bottom:6px;">GEMINI API KEY <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);float:right;text-decoration:none;">Get Key</a></label>
     <input id="apiKeyInput" type="password" placeholder="AIza..." autocomplete="off"/>
     
-    <label style="font-size:11px;color:var(--muted);margin-bottom:4px;">DISCOGS TOKEN <a href="https://www.discogs.com/settings/developers" target="_blank" style="color:var(--accent);float:right;">Get Token</a></label>
+    <label style="font-size:12px;color:var(--muted);margin-bottom:6px;">DISCOGS TOKEN <a href="https://www.discogs.com/settings/developers" target="_blank" style="color:var(--accent);float:right;text-decoration:none;">Get Token</a></label>
     <input id="discogsKeyInput" type="password" placeholder="Optional for pricing" autocomplete="off"/>
     
     <button class="btn-primary" onclick="startApp()">Start Scanner</button>
-    <div id="setupErr" style="color:var(--red); font-size:12px; margin-top:10px; text-align:center;"></div>
+    <div id="setupErr" style="color:var(--red); font-size:13px; margin-top:12px; text-align:center;"></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="editionModal">
   <div class="modal-card">
-    <h3>Select Exact Pressing</h3>
+    <h3 style="font-size:18px;">Select Exact Pressing</h3>
+    <p style="font-size:13px; color:var(--muted); margin-top:4px;">Which cover matches yours?</p>
     <div class="edition-scroll" id="editionList"></div>
     <button class="btn-primary" style="background:var(--panel); color:var(--text); border:1px solid var(--border);" id="editionSkipBtn">Skip & Auto-Pick</button>
   </div>
@@ -155,13 +160,13 @@
 <div class="modal-overlay" id="scanConfirm">
   <div class="modal-card">
     <div style="display:flex; gap:16px; margin-bottom:16px;">
-      <img id="scThumb" src="" style="width:80px; height:80px; border-radius:8px; object-fit:cover; background:#000;">
+      <img id="scThumb" src="" style="width:85px; height:85px; border-radius:8px; object-fit:cover; background:#000; border:1px solid var(--border);">
       <div style="display:flex; flex-direction:column; justify-content:center;">
-        <strong id="scTitle" style="font-size:16px;">Artist - Title</strong>
-        <span id="scMeta" style="font-size:12px; color:var(--muted); margin-top:4px;"></span>
+        <strong id="scTitle" style="font-size:18px; line-height:1.3;">Artist - Title</strong>
+        <span id="scMeta" style="font-size:13px; color:var(--muted); margin-top:6px;"></span>
       </div>
     </div>
-    <div id="scBadges" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;"></div>
+    <div id="scBadges" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;"></div>
     
     <div class="sc-edits">
       <div class="sc-field"><label>Year</label><input id="scYear" type="number" placeholder="YYYY"></div>
@@ -169,7 +174,7 @@
     </div>
 
     <div class="sc-actions">
-      <button class="btn-primary full" id="scAddBtn">Add to Inventory</button>
+      <button class="btn-primary full" id="scAddBtn">✓ Add to Inventory</button>
       <button class="btn-primary" style="background:var(--panel); color:var(--text); border:1px solid var(--border);" id="scRetryBtn">🔄 Retry</button>
       <button class="btn-primary" style="background:transparent; color:var(--red); border:1px solid var(--red);" id="scCancelBtn">✕ Discard</button>
     </div>
@@ -192,9 +197,7 @@
   <div class="cam-area">
     <video id="video" autoplay muted playsinline></video>
     <div class="cam-overlay">
-      <canvas id="detectCanvas"></canvas>
-      <div class="target-ring" id="ring"></div>
-      <div class="cam-label" id="camLabel">Tap Scan to begin</div>
+      <div class="cam-label" id="camLabel">Aim at cover art</div>
     </div>
     <div class="genre-flash" id="genreFlash"></div>
     <canvas id="snapCanvas" style="display:none"></canvas>
@@ -212,7 +215,7 @@
 
     <div class="auto-toggle">
       <button id="autoBtn" class="auto-btn" onclick="cycleAutoMode()">Auto: OFF</button>
-      <button class="auto-btn" style="background:transparent; border:none; padding:2px;" onclick="doScan()">Snap Now</button>
+      <button class="auto-btn" style="background:transparent; border:none; padding:2px; font-weight:600;" onclick="doScan()">Snap Now</button>
     </div>
   </div>
 
@@ -231,7 +234,7 @@
       <div id="scanListInv">
         <div class="empty-state" id="emptyStateInv">
           <div class="icon">📱</div>
-          <p>Inventory is empty.<br/>Point camera at a record and scan.</p>
+          <p>Inventory is empty.<br/>Point camera at a record and snap.</p>
         </div>
       </div>
       <div id="scanListRev" style="display:none;">
@@ -242,6 +245,11 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="status-bar">
+  <div class="dot" id="statusDot"></div>
+  <div class="msg" id="statusMsg">Ready</div>
 </div>
 
 <script>
@@ -260,11 +268,8 @@ let autoState = 0;
 let autoScanTimer = null;
 let countdownInterval = null;
 
-let videoEl, canvasEl, ctxSnap, detectCanvas, detectCtx, detectRAF;
+let videoEl, canvasEl, ctxSnap;
 let pendingArtScan = null; 
-let squareLockMs = null;   
-let lastRect = null;       
-const DETECT_STABLE_MS = 900; 
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const CORS_PROXY  = 'https://corsproxy.io/?';
@@ -274,7 +279,6 @@ const PROMPT_TEXT = `You are an expert vinyl record identifier specializing in e
 
 const PALETTE = ['#00e5d4', '#ff4d6d', '#f5c518', '#6e52ff', '#3b9eff', '#c462f5', '#f0c040', '#ff6ec7', '#f5832a', '#5ddb5d', '#a3e635', '#7b8cff', '#e8a87c'];
 let knownGenres = {};
-const discogsImageCache = new Map();
 const discogsReleaseCache = new Map();
 
 // ==========================================
@@ -315,7 +319,7 @@ function flashColor(color) {
   setTimeout(() => flash.classList.remove('show'), 700);
 }
 
-// Auto Mode logic for mobile button
+// Auto Mode logic
 function cycleAutoMode() {
   const btn = document.getElementById('autoBtn');
   if (autoState === 0) { autoState = 3; btn.textContent = 'Auto: 3s'; btn.classList.add('active'); }
@@ -349,7 +353,7 @@ async function runAutoScanLoop(delay) {
 }
 
 // ==========================================
-// 3. CAMERA SETUP (Mobile Rear Cam)
+// 3. CAMERA SETUP
 // ==========================================
 function startApp() {
   const key = document.getElementById('apiKeyInput').value.trim();
@@ -366,7 +370,7 @@ function startApp() {
   const savedG = localStorage.getItem('vinylshop_gemini_key'); if (savedG) document.getElementById('apiKeyInput').value = savedG;
   const savedD = localStorage.getItem('vinylshop_discogs_key'); if (savedD) document.getElementById('discogsKeyInput').value = savedD;
   if(!savedG) document.getElementById('setupModal').classList.add('show');
-  else startApp(); // Auto start if keys exist
+  else startApp(); 
 })();
 
 async function startCamera() {
@@ -374,20 +378,16 @@ async function startCamera() {
   videoEl = document.getElementById('video');
   canvasEl = document.getElementById('snapCanvas');
   ctxSnap = canvasEl.getContext('2d');
-  detectCanvas = document.getElementById('detectCanvas');
-  detectCtx = detectCanvas.getContext('2d');
 
   try {
-    // Force Rear Camera on mobile, high res to ensure good OCR
+    // Force Rear Camera on mobile, max res
     const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }, 
+      video: { facingMode: 'environment', width: { ideal: 2160 }, height: { ideal: 2160 } }, 
       audio: false 
     });
     videoEl.srcObject = stream;
-    videoEl.addEventListener('loadedmetadata', () => {
-      videoEl.play();
-      startSquareDetector();
-    }, { once: true });
+    videoEl.addEventListener('loadedmetadata', () => { videoEl.play(); }, { once: true });
+    setStatus('Camera connected \u2014 ready to scan', false);
   } catch(e) { alert('Camera access required. ' + e.message); }
 }
 
@@ -395,19 +395,15 @@ async function startCamera() {
 // 4. IMAGE PROCESSING & API CALLS
 // ==========================================
 async function captureAndPreprocess() {
+  // FULL FRAME CAPTURE (No restrictve squares, no weird cropping)
   const fw = videoEl.videoWidth, fh = videoEl.videoHeight;
-  // Center square crop
-  const side = Math.min(fw, fh) * 0.95; 
-  const cx = (fw - side) / 2, cy = (fh - side) / 2;
-  canvasEl.width = side; canvasEl.height = side;
+  canvasEl.width = fw; canvasEl.height = fh;
+  ctxSnap.drawImage(videoEl, 0, 0, fw, fh);
   
-  // NOTE: NO MIRRORING applied here. Phone rear cameras are correctly oriented.
-  ctxSnap.drawImage(videoEl, cx, cy, side, side, 0, 0, side, side);
-  
-  // Contrast boost
-  const out = document.createElement('canvas'); out.width = side; out.height = side;
+  // Minor contrast boost for OCR
+  const out = document.createElement('canvas'); out.width = fw; out.height = fh;
   const oc = out.getContext('2d');
-  oc.filter = 'contrast(1.2) brightness(1.05)';
+  oc.filter = 'contrast(1.15) brightness(1.05)';
   oc.drawImage(canvasEl, 0, 0);
   return out;
 }
@@ -432,17 +428,16 @@ async function callGemini(b64, prompt) {
 // ==========================================
 async function doScan() {
   if (scanning || !videoEl || !videoEl.srcObject) return;
-  stopSquareDetector();
   scanning = true;
-  const btn = document.getElementById('scanBtn'), ring = document.getElementById('ring');
-  btn.classList.add('scanning'); ring.classList.add('scanning'); 
+  const btn = document.getElementById('scanBtn'), lbl = document.getElementById('camLabel');
+  btn.classList.add('scanning'); lbl.classList.add('scanning');
   updateCamLabel('ANALYZING...');
 
   try {
     if (pendingArtScan) {
       updateCamLabel('READING TRACKLIST...');
       const processed = await captureAndPreprocess();
-      const b64 = processed.toDataURL('image/jpeg', 0.88).split(',')[1];
+      const b64 = processed.toDataURL('image/jpeg', 0.85).split(',')[1];
       const textData = await callGemini(b64, PROMPT_TEXT);
       
       const merged = { ...pendingArtScan.artData, ...textData };
@@ -455,7 +450,7 @@ async function doScan() {
     else if (currentMode === 'TEXT') {
       updateCamLabel('READING TEXT...');
       const processed = await captureAndPreprocess();
-      const b64 = processed.toDataURL('image/jpeg', 0.88).split(',')[1];
+      const b64 = processed.toDataURL('image/jpeg', 0.85).split(',')[1];
       const textData = await callGemini(b64, PROMPT_TEXT);
       updateCamLabel('SEARCHING DISCOGS...');
       await processAIResult(textData, 'data:image/jpeg;base64,'+b64, true);
@@ -463,16 +458,16 @@ async function doScan() {
     else {
       updateCamLabel('ANALYZING COVER...');
       const processed = await captureAndPreprocess();
-      const b64 = processed.toDataURL('image/jpeg', 0.88).split(',')[1];
+      const b64 = processed.toDataURL('image/jpeg', 0.85).split(',')[1];
       const b64Full = 'data:image/jpeg;base64,' + b64;
       const artData = await callGemini(b64, PROMPT_ART);
       const conf = parseFloat(artData.confidence || 0);
 
       if (conf < 0.70) {
         pendingArtScan = { artData, b64Full };
-        ring.classList.remove('scanning'); ring.style.borderColor = 'var(--yellow)'; ring.style.borderStyle = 'solid';
         updateCamLabel('Flip record \u2014 Tap Scan to read back');
-        scanning = false; btn.classList.remove('scanning');
+        lbl.style.color = 'var(--yellow)';
+        scanning = false; btn.classList.remove('scanning'); lbl.classList.remove('scanning');
         return; 
       }
       updateCamLabel('SEARCHING DISCOGS...');
@@ -481,9 +476,8 @@ async function doScan() {
   } catch (e) {
     pendingArtScan = null; alert(e.message);
   } finally {
-    scanning = false; btn.classList.remove('scanning'); ring.classList.remove('scanning'); ring.style.borderColor = '';
+    scanning = false; btn.classList.remove('scanning'); lbl.classList.remove('scanning'); lbl.style.color = '';
     if (!pendingArtScan && autoState === 0) updateCamLabel();
-    else if (!pendingArtScan && autoState > 0) startSquareDetector();
   }
 }
 
@@ -501,7 +495,7 @@ async function processAIResult(data, b64Full, isTextMode) {
     (norm(artist) === norm(r.artist) && norm(title) === norm(r.title) && norm(artist))
   );
 
-  if (isDup) { flashColor('var(--yellow)'); updateCamLabel('Duplicate Skipped'); setTimeout(updateCamLabel, 2000); startSquareDetector(); return; }
+  if (isDup) { flashColor('var(--yellow)'); updateCamLabel('Duplicate Skipped'); setTimeout(updateCamLabel, 2000); return; }
 
   let rec = { id, artist: artist||'Unknown', title: title||'Unknown', catalog, matrix, tracks, confidence: conf, status: 'REVIEW', rawImage: b64Full, timestamp: new Date().toISOString() };
 
@@ -531,7 +525,7 @@ function showScanConfirm(r) {
   const m = document.getElementById('scanConfirm');
   document.getElementById('scThumb').src = r.thumb || r.rawImage || '';
   document.getElementById('scTitle').textContent = `${r.artist} - ${r.title}`;
-  document.getElementById('scMeta').textContent = [r.catalog, r.matrix, r.price ? '$'+r.price : ''].filter(Boolean).join(' \u2022 ');
+  document.getElementById('scMeta').textContent = [r.catalog, r.matrix, r.price && r.price!=="0.00" ? '$'+r.price : ''].filter(Boolean).join(' \u2022 ');
   document.getElementById('scYear').value = r.editionYear || '';
   document.getElementById('scCountry').value = r.editionCountry || '';
   
@@ -547,10 +541,10 @@ function showScanConfirm(r) {
     r.editionCountry = document.getElementById('scCountry').value;
     records.push(r); m.classList.remove('show'); 
     if(r.status==='PRICED') flashColor(getGenreColor(r.genre));
-    renderLists(); startSquareDetector();
+    renderLists(); 
   };
-  document.getElementById('scRetryBtn').onclick = () => { m.classList.remove('show'); startSquareDetector(); };
-  document.getElementById('scCancelBtn').onclick = () => { m.classList.remove('show'); startSquareDetector(); };
+  document.getElementById('scRetryBtn').onclick = () => { m.classList.remove('show'); };
+  document.getElementById('scCancelBtn').onclick = () => { m.classList.remove('show'); };
 }
 
 async function discogsSearchFlow(artist, title, catalog, matrix, tracks, isTextMode, rawQuery = null) {
@@ -565,7 +559,7 @@ async function discogsSearchFlow(artist, title, catalog, matrix, tracks, isTextM
 
     let rel = vinyls[0];
     if (vinyls.length > 1 && !rawQuery) {
-      clearTimeout(autoScanTimer); // Pause auto scan during modal
+      clearTimeout(autoScanTimer); // Pause auto scan
       rel = await askUserForEdition(vinyls);
     }
 
@@ -700,72 +694,6 @@ function downloadCSV() {
   uniq.forEach(r => rows.push([r.id, `"${r.artist}"`, `"${r.title}"`, `"${r.catalog}"`, `"${r.matrix}"`, `"${r.genre}"`, r.editionYear, r.editionCountry, r.price]));
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([rows.map(e=>e.join(',')).join('\n')], {type:'text/csv'}));
   a.download = `vinylshop_${new Date().toISOString().split('T')[0]}.csv`; a.click();
-}
-
-// ==========================================
-// 8. BACKGROUND SQUARE DETECTOR 
-// ==========================================
-const sW=80, sH=60;
-const sC = document.createElement('canvas'); sC.width=sW; sC.height=sH;
-const sCtx = sC.getContext('2d', {willReadFrequently:true});
-
-function startSquareDetector() {
-  if (detectRAF || !videoEl || !videoEl.srcObject) return;
-  detectRAF = requestAnimationFrame(detectLoop);
-}
-function stopSquareDetector() {
-  if (detectRAF) cancelAnimationFrame(detectRAF); detectRAF=null; squareLockMs=null;
-  if(detectCtx) detectCtx.clearRect(0,0,detectCanvas.width,detectCanvas.height);
-}
-
-function detectLoop() {
-  if (!scanning && autoState > 0) runDetect();
-  detectRAF = requestAnimationFrame(detectLoop);
-}
-
-function runDetect() {
-  if (videoEl.readyState < 2) return;
-  const dw = detectCanvas.offsetWidth, dh = detectCanvas.offsetHeight;
-  if (detectCanvas.width !== dw || detectCanvas.height !== dh) { detectCanvas.width = dw; detectCanvas.height = dh; }
-  
-  sCtx.drawImage(videoEl, 0, 0, sW, sH);
-  const px = sCtx.getImageData(0,0,sW,sH).data;
-  const edge = new Uint8Array(sW*sH);
-  
-  for (let y=1; y<sH-1; y++) for(let x=1; x<sW-1; x++) {
-    const i = (y*sW+x)*4;
-    const g = (px[i]*77 + px[i+1]*150 + px[i+2]*29) >> 8;
-    edge[y*sW+x] = g; 
-  }
-  
-  const rs = new Float32Array(sH), cs = new Float32Array(sW);
-  for(let y=0;y<sH;y++) for(let x=0;x<sW;x++) { rs[y]+=edge[y*sW+x]; cs[x]+=edge[y*sW+x]; }
-  
-  let top=-1, bot=-1, lft=-1, rgt=-1;
-  const rt=Math.max(...rs)*0.4, ct=Math.max(...cs)*0.4;
-  for(let i=2;i<sH-2;i++) if(rs[i]>rt) { if(top<0) top=i; bot=i; }
-  for(let i=2;i<sW-2;i++) if(cs[i]>ct) { if(lft<0) lft=i; rgt=i; }
-  
-  if (top<0 || lft<0 || (bot-top)/sH < 0.2 || (rgt-lft)/sW < 0.2) { squareLockMs=null; drawBrackets(null,dw,dh,0); return; }
-  
-  const now = performance.now();
-  if(!squareLockMs) squareLockMs = now;
-  const prog = Math.min(1, (now-squareLockMs)/DETECT_STABLE_MS);
-  
-  drawBrackets({x:lft/sW, y:top/sH, w:(rgt-lft)/sW, h:(bot-top)/sH}, dw, dh, prog);
-  
-  if (prog >= 1 && !scanning) { squareLockMs=null; stopSquareDetector(); doScan(); }
-}
-
-function drawBrackets(r, dw, dh, p) {
-  detectCtx.clearRect(0,0,dw,dh); if(!r) return;
-  const sw=dw, sh=dh, px=r.x*sw, py=r.y*sh, pw=r.w*sw, ph=r.h*sh;
-  detectCtx.strokeStyle = `rgba(245, 197, 24, ${0.4 + p*0.6})`;
-  detectCtx.lineWidth = 3; detectCtx.lineCap = 'round';
-  const len = Math.min(pw,ph)*0.2;
-  [[px,py,1,1],[px+pw,py,-1,1],[px,py+ph,1,-1],[px+pw,py+ph,-1,-1]].forEach(([x,y,dx,dy])=>{
-    detectCtx.beginPath(); detectCtx.moveTo(x+dx*len,y); detectCtx.lineTo(x,y); detectCtx.lineTo(x,y+dy*len); detectCtx.stroke();
-  });
 }
 </script>
 </body>
