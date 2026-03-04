@@ -28,110 +28,166 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);f
 .cam-area{position:relative;height:32dvh;min-height:200px;background:#000;flex-shrink:0;overflow:hidden;border-bottom:2px solid var(--accent)}
 video{width:100%;height:100%;object-fit:cover}
 .cam-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:14px;pointer-events:none}
-.cam-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;background:rgba(0,0,0,.85);padding:7px 14px;border-radius:20px;backdrop-filter:blur(8px)}
-.cam-label.scanning{color:var(--red);animation:pulse 0.8s infinite}
-.cam-label.ok{color:var(--green)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.cam-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;background:rgba(0,0,0,.9);padding:7px 14px;border-radius:20px;backdrop-filter:blur(8px)}
+.cam-label.scanning{color:var(--red);animation:pulse .8s infinite}
+.cam-label.match{color:var(--green)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* SCAN BAR */
+/* CONTROLS */
 .controls-bar{display:flex;align-items:center;justify-content:space-around;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
 .scan-btn{width:64px;height:64px;border-radius:50%;border:3px solid var(--accent);background:rgba(0,229,212,.08);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--accent);transition:transform .1s}
 .scan-btn:active{transform:scale(.88)}
-.scan-btn.scanning{border-color:var(--red);color:var(--red);animation:pulse .8s infinite}
-.side-btn{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:10px 12px;border-radius:10px;min-width:82px;cursor:pointer}
+.scan-btn.active{border-color:var(--red);color:var(--red);animation:pulse .8s infinite}
+.side-btn{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:10px 12px;border-radius:10px;min-width:82px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.side-btn span{font-size:16px}
 .side-btn.danger{background:transparent;color:var(--red);border-color:var(--red)}
+.side-btn.csv{color:var(--green);border-color:var(--green)}
 
 /* TABS */
 .tab-bar{display:flex;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0}
-.tab-btn{flex:1;padding:13px;background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;border-bottom:2px solid transparent;cursor:pointer;position:relative}
+.tab-btn{flex:1;padding:13px;background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;border-bottom:2px solid transparent;cursor:pointer}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--card);font-weight:700}
-.tab-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;border-radius:8px;font-size:9px;padding:1px 5px;margin-left:5px;font-family:'JetBrains Mono',monospace}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;border-radius:8px;font-size:9px;padding:1px 5px;margin-left:4px;font-family:'JetBrains Mono',monospace}
 
 /* LIST */
-.list-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:8px;color:var(--muted)}
-.empty-state .em-icon{font-size:36px;margin-bottom:8px}
-.empty-state p{font-size:13px;text-align:center;line-height:1.5}
+.list-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;gap:8px;color:var(--muted);text-align:center}
+.empty-state .em{font-size:38px;margin-bottom:6px}
+.empty-state p{font-size:13px;line-height:1.6}
 
-/* TEXT-ONLY RECORD ROW */
-.rec-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border);background:var(--card);position:relative;animation:slideIn .25s ease-out;overflow:hidden}
-@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* RECORD ROWS */
+.rec-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border);background:var(--card);animation:slideIn .22s ease-out;overflow:hidden}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .rec-bar{width:4px;flex-shrink:0}
-.rec-body{flex:1;padding:13px 12px;overflow:hidden;display:flex;flex-direction:column;gap:3px}
+.rec-body{flex:1;padding:12px 10px;overflow:hidden;display:flex;flex-direction:column;gap:3px}
 .rec-artist{font-weight:700;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-row.review .rec-artist{color:var(--yellow)}
 .rec-title{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rec-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .tag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 7px;border-radius:4px;background:var(--panel);border:1px solid var(--border);color:var(--accent)}
-.tag.review{color:var(--yellow);border-color:var(--yellow)}
-.tag.green{color:var(--green);border-color:var(--green)}
+.tag.warn{color:var(--yellow);border-color:var(--yellow)}
+.tag.ok{color:var(--green);border-color:var(--green)}
 .rec-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;padding:10px 12px 10px 4px;flex-shrink:0}
-.rec-price{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)}
-.rec-del{background:transparent;border:none;color:var(--muted2);font-size:15px;cursor:pointer;padding:2px;line-height:1}
-.rec-row.review-row .rec-artist{color:var(--yellow)}
-
-/* REVIEW ACTIONS */
-.rec-actions{display:flex;gap:6px;padding:0 12px 12px 16px;background:var(--card)}
-.act-btn{font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:4px}
+.rec-price{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer}
+.rec-del{background:transparent;border:none;color:var(--muted2);font-size:14px;cursor:pointer;padding:2px}
+.rev-actions{display:flex;gap:6px;padding:0 12px 11px 16px;background:var(--card)}
+.act-btn{font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer}
 .act-btn.retry{color:var(--accent);border-color:var(--accent)}
-.act-btn.ext{color:var(--muted)}
 
 /* MODALS */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;display:none;padding:20px;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
-.modal-overlay.show{display:flex}
-.modal-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:22px;width:100%;max-width:400px;max-height:88dvh;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
-.modal-title{font-size:17px;font-weight:700;text-align:center;margin-bottom:4px}
-.modal-input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);outline:none;font-size:14px}
-.btn-primary{width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#000;font-size:15px;font-weight:700;cursor:pointer}
-.btn-secondary{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;cursor:pointer}
-.btn-danger{width:100%;padding:12px;border-radius:12px;border:1px solid var(--red);background:transparent;color:var(--red);font-size:14px;cursor:pointer}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;display:none;padding:16px;align-items:flex-end;justify-content:center;backdrop-filter:blur(12px)}
+.overlay.show{display:flex}
+.sheet{background:var(--panel);border:1px solid var(--border);border-radius:20px 20px 16px 16px;padding:22px;width:100%;max-width:440px;max-height:90dvh;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.sheet-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:2px}
+.inp{width:100%;padding:13px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);outline:none;font-size:14px;font-family:'DM Sans',sans-serif}
+.inp:focus{border-color:var(--accent)}
+.btn-p{width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#000;font-size:15px;font-weight:700;cursor:pointer}
+.btn-s{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;cursor:pointer}
+.btn-d{width:100%;padding:11px;border-radius:12px;border:1px solid var(--red);background:transparent;color:var(--red);font-size:13px;cursor:pointer}
+.label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:-4px}
 
-/* CONFIRM MODAL */
-.confirm-artist{font-size:18px;font-weight:700;color:#fff;margin-bottom:2px}
-.confirm-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent)}
-.confirm-price{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--green);text-align:right}
-.track-list{font-size:11px;color:var(--muted);background:var(--bg);padding:10px;border-radius:8px;border:1px solid var(--border);max-height:100px;overflow-y:auto;line-height:1.6;font-family:'JetBrains Mono',monospace}
+/* CONFIRM MODAL SPECIFICS */
+.cf-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.cf-price-big{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--green);text-align:right;white-space:nowrap}
+.cf-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);margin-top:2px}
+.tracklist{font-size:11px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--border);max-height:90px;overflow-y:auto;line-height:1.7;font-family:'JetBrains Mono',monospace}
 
-/* STATUS BAR */
+/* MATCH PICKER */
+.match-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto}
+.match-opt{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;width:100%}
+.match-opt:hover,.match-opt.sel{border-color:var(--accent);background:rgba(0,229,212,.06)}
+.match-opt img{width:44px;height:44px;border-radius:6px;object-fit:cover;background:#000;flex-shrink:0}
+.match-opt-info{flex:1;overflow:hidden}
+.match-opt-title{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.match-opt-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px}
+.match-score{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--panel);color:var(--accent);flex-shrink:0}
+
+/* SCORE BAR */
+.score-bar{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:2px}
+.score-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s}
+
+/* STATUS */
 .status-bar{padding:6px 14px;background:var(--bg);border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-shrink:0}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
-.status-dot.busy{background:var(--yellow);animation:pulse .6s infinite}
-.status-dot.err{background:var(--red)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.dot.busy{background:var(--yellow);animation:pulse .7s infinite}
+.dot.err{background:var(--red)}
 
 canvas{display:none}
 </style>
 </head>
 <body>
 
-<!-- SETUP MODAL -->
-<div class="modal-overlay" id="setupModal">
-  <div class="modal-card">
-    <div class="modal-title">⚙ Scanner Setup</div>
-    <input class="modal-input" id="cfgGemini" type="password" placeholder="Gemini API Key"/>
-    <input class="modal-input" id="cfgDiscogs" type="password" placeholder="Discogs Personal Token"/>
-    <input class="modal-input" id="cfgSheets" type="url" placeholder="Google Sheets Webhook (optional)"/>
-    <button class="btn-primary" onclick="saveSettings()">Save & Launch</button>
-  </div>
-</div>
-
-<!-- CONFIRM MODAL -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div>
-        <div class="confirm-artist" id="cfArtist"></div>
-        <div id="cfTitle" style="font-size:14px;color:var(--muted);margin-bottom:4px"></div>
-        <div class="confirm-meta" id="cfMeta"></div>
-      </div>
-      <div class="confirm-price" id="cfPrice"></div>
+<!-- ── SETUP MODAL ─────────────────────────────────────── -->
+<div class="overlay" id="moSetup">
+  <div class="sheet" style="border-radius:20px">
+    <div class="sheet-title">⚙ Scanner Setup</div>
+    <div class="label">GEMINI API KEY</div>
+    <input class="inp" id="cfgGemini" type="password" placeholder="AIzaSy…"/>
+    <div class="label">DISCOGS PERSONAL TOKEN</div>
+    <input class="inp" id="cfgDiscogs" type="password" placeholder="your discogs token"/>
+    <div class="label">GOOGLE SHEETS WEBHOOK (optional)</div>
+    <input class="inp" id="cfgSheets" type="url" placeholder="https://script.google.com/…"/>
+    <button class="btn-p" onclick="saveSettings()">Save & Launch</button>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn-s" style="font-size:12px" onclick="backupJSON()">↓ Backup JSON</button>
+      <button class="btn-s" style="font-size:12px" onclick="document.getElementById('restoreFile').click()">↑ Restore JSON</button>
     </div>
-    <div class="track-list" id="cfTracks"></div>
-    <button class="btn-primary" id="cfAddBtn">✓ Add to Inventory</button>
-    <button class="btn-secondary" id="cfManualBtn">🔍 Search Discogs Manually</button>
-    <button class="btn-danger" onclick="closeModal('confirmModal')">✕ Discard</button>
+    <input id="restoreFile" type="file" accept=".json" style="display:none" onchange="restoreJSON(event)"/>
   </div>
 </div>
 
-<!-- TOP BAR -->
+<!-- ── CONFIRM / MATCH MODAL ──────────────────────────── -->
+<div class="overlay" id="moConfirm">
+  <div class="sheet">
+
+    <!-- AI-extracted info + price -->
+    <div class="cf-head">
+      <div style="flex:1;overflow:hidden">
+        <div id="cfArtist" style="font-size:17px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        <div id="cfTitle"  style="font-size:13px;color:var(--muted);margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        <div id="cfMeta"   class="cf-meta"></div>
+      </div>
+      <div>
+        <div class="cf-price-big" id="cfPrice"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-align:right;margin-top:2px" id="cfPriceLbl"></div>
+      </div>
+    </div>
+
+    <!-- Tracklist -->
+    <div class="tracklist" id="cfTracks"></div>
+
+    <!-- Price override -->
+    <div class="label">SET PRICE (override)</div>
+    <input class="inp" id="cfPriceInput" type="number" step="0.01" min="0" placeholder="e.g. 12.00" style="font-family:'JetBrains Mono',monospace"/>
+
+    <!-- Match picker -->
+    <div id="cfMatchSection" style="display:none">
+      <div class="label" style="margin-bottom:6px">SELECT DISCOGS MATCH</div>
+      <div class="match-list" id="cfMatchList"></div>
+    </div>
+
+    <button class="btn-p" id="cfAddBtn">✓ Add to Inventory</button>
+    <button class="btn-s" id="cfManualBtn">🔍 Search Discogs Manually</button>
+    <button class="btn-d" onclick="closeModal('moConfirm')">✕ Discard</button>
+  </div>
+</div>
+
+<!-- ── EDIT MODAL ──────────────────────────────────────── -->
+<div class="overlay" id="moEdit">
+  <div class="sheet">
+    <div class="sheet-title">Edit Record</div>
+    <input class="inp" id="editArtist" placeholder="Artist"/>
+    <input class="inp" id="editTitle"  placeholder="Title"/>
+    <input class="inp" id="editSku"    placeholder="Catalog No."/>
+    <input class="inp" id="editGenre"  placeholder="Genres (comma separated)"/>
+    <input class="inp" id="editPrice"  type="number" step="0.01" placeholder="Price (USD)"/>
+    <button class="btn-p" onclick="saveEdit()">Save Changes</button>
+    <button class="btn-d" onclick="closeModal('moEdit')">Cancel</button>
+    <input type="hidden" id="editId"/>
+  </div>
+</div>
+
+<!-- ── TOP BAR ─────────────────────────────────────────── -->
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:8px">
     <div class="logo">🎵</div>
@@ -144,7 +200,7 @@ canvas{display:none}
   </div>
 </div>
 
-<!-- CAMERA -->
+<!-- ── CAMERA ──────────────────────────────────────────── -->
 <div class="cam-area">
   <video id="video" autoplay muted playsinline></video>
   <canvas id="snapCanvas"></canvas>
@@ -153,18 +209,22 @@ canvas{display:none}
   </div>
 </div>
 
-<!-- SCAN CONTROLS -->
+<!-- ── CONTROLS ────────────────────────────────────────── -->
 <div class="controls-bar">
-  <button class="side-btn" onclick="exportCSV()">↓ CSV</button>
+  <button class="side-btn csv" onclick="exportCSV()"><span>↓</span>CSV</button>
   <button class="scan-btn" id="scanBtn" onclick="doScan()">⏺</button>
-  <button class="side-btn danger" onclick="clearAll()">Clear</button>
+  <button class="side-btn danger" onclick="clearAll()"><span>✕</span>Clear</button>
 </div>
 
-<!-- TABS + LIST -->
+<!-- ── TABS + LIST ─────────────────────────────────────── -->
 <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
   <div class="tab-bar">
-    <button class="tab-btn active" id="tab-inv" onclick="switchTab('inv')">INVENTORY <span id="badgeInv" class="tab-badge">0</span></button>
-    <button class="tab-btn" id="tab-rev" onclick="switchTab('rev')">REVIEW <span id="badgeRev" class="tab-badge" style="display:none"></span></button>
+    <button class="tab-btn active" id="tab-inv" onclick="switchTab('inv')">
+      INVENTORY <span id="badgeInv" class="tab-badge">0</span>
+    </button>
+    <button class="tab-btn" id="tab-rev" onclick="switchTab('rev')">
+      REVIEW <span id="badgeRev" class="tab-badge" style="display:none"></span>
+    </button>
   </div>
   <div class="list-wrap">
     <div id="listInv"></div>
@@ -172,431 +232,544 @@ canvas{display:none}
   </div>
 </div>
 
-<!-- STATUS BAR -->
+<!-- ── STATUS ──────────────────────────────────────────── -->
 <div class="status-bar">
-  <div class="status-dot" id="statusDot"></div>
+  <div class="dot" id="statusDot"></div>
   <span id="statusText">Ready</span>
 </div>
 
 <script>
 'use strict';
 
-// ── State ──────────────────────────────────────────────────────────────────────
-let API_KEY = '', DISCOGS_TOKEN = '', SHEETS_URL = '';
-let records = [], scanning = false, currentTab = 'inv';
-let videoEl, canvasEl, ctxSnap;
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
 const GEMINI_MODEL = 'gemini-2.5-flash-preview-05-20';
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+];
 
-// Genre → colour map for left accent bars
-const GENRE_COLOURS = {
-  techno:'#6e52ff', house:'#00e5d4', trance:'#f5c518', ambient:'#22c55e',
-  dnb:'#ff4d6d', jungle:'#f97316', electro:'#e879f9', disco:'#fbbf24',
-  soul:'#f43f5e', jazz:'#a78bfa', rock:'#94a3b8', pop:'#34d399', default:'#3a3a44'
+const GENRE_COLOUR = {
+  techno:'#6e52ff',house:'#00e5d4',trance:'#f5c518',ambient:'#22c55e',
+  'drum and bass':'#ff4d6d','d&b':'#ff4d6d',jungle:'#f97316',electro:'#e879f9',
+  disco:'#fbbf24',soul:'#f43f5e',jazz:'#a78bfa',rock:'#94a3b8',
+  pop:'#34d399',experimental:'#c084fc',industrial:'#64748b'
 };
-function genreColour(genre) {
-  if (!genre) return GENRE_COLOURS.default;
-  const g = genre.toLowerCase();
-  for (const [k,v] of Object.entries(GENRE_COLOURS)) if (g.includes(k)) return v;
-  return GENRE_COLOURS.default;
+function genreColour(g=''){
+  const s=g.toLowerCase();
+  for(const[k,v]of Object.entries(GENRE_COLOUR))if(s.includes(k))return v;
+  return '#3a3a44';
 }
 
-// ── PROMPT ─────────────────────────────────────────────────────────────────────
-// Deliberately strict JSON-only, no markdown fences allowed
-const PROMPT = `You are an expert vinyl archivist. Examine this image of a record sleeve or centre label.
-Read ALL visible text. Identify the exact release.
-Return ONLY a raw JSON object (no markdown, no backticks, no explanation):
-{"artist":"exact artist name","title":"exact album or single title","catalog":"catalogue number if visible else empty string","year":"year if visible else empty string","tracks":["Side A 01 - Track Name","..."],"genres":["primary genre","secondary genre"]}
-Be precise. If it is a compilation, set artist to "Various Artists". Tracks should preserve side labels (Side A / Side B / A1 / B2 etc).`;
+// ── AI PROMPT ────────────────────────────────────────────────────────────────
+// responseMimeType forces JSON mode — no markdown fences possible
+const PROMPT = `You are an expert vinyl archivist. Examine this photo of a record sleeve, centre label, or back cover.
+Read ALL visible text carefully. Deduce the exact commercial release.
+Return ONLY a raw JSON object with these exact keys:
+{
+  "artist": "exact artist name as printed",
+  "title": "exact album or single title as printed",
+  "catalog": "catalogue number if visible, else empty string",
+  "year": "year if visible, else empty string",
+  "tracks": ["Side A - 01 Track Name", "Side A - 02 Track Name", "Side B - 01 Track Name"],
+  "genres": ["Primary Genre", "Secondary Genre"]
+}
+Rules:
+- Preserve the original capitalisation of artist and title.
+- For compilations set artist to "Various Artists".
+- Tracks must include side labels (e.g. "Side A - 01" or "A1", "B2").
+- genres should be specific dance music subgenres where possible (e.g. Techno, Deep House, Acid, Jungle, Ambient Techno).
+- If this is a 12" single with only 2-3 tracks, set that in tracks accordingly.`;
 
-// ── INIT ────────────────────────────────────────────────────────────────────────
-(async function init() {
-  API_KEY       = localStorage.getItem('vg') || '';
-  DISCOGS_TOKEN = localStorage.getItem('vd') || '';
-  SHEETS_URL    = localStorage.getItem('vs') || '';
-  records       = JSON.parse(localStorage.getItem('vr') || '[]');
+// ── STATE ────────────────────────────────────────────────────────────────────
+let API_KEY='', DISCOGS_TOKEN='', SHEETS_URL='';
+let records=[], scanning=false, currentTab='inv';
+let videoEl, canvasEl, ctxSnap;
+let pendingAiData=null, pendingMatches=[], selectedMatchIdx=0;
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(async function init(){
+  API_KEY       = localStorage.getItem('vg')||'';
+  DISCOGS_TOKEN = localStorage.getItem('vd')||'';
+  SHEETS_URL    = localStorage.getItem('vs')||'';
+  records       = JSON.parse(localStorage.getItem('vr')||'[]');
 
   videoEl  = document.getElementById('video');
   canvasEl = document.getElementById('snapCanvas');
   ctxSnap  = canvasEl.getContext('2d');
 
-  if (!API_KEY) { showModal('setupModal'); return; }
-
-  try {
+  if(!API_KEY){ openModal('moSetup'); return; }
+  try{
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+      video:{ facingMode:'environment', width:{ideal:1920}, height:{ideal:1080} }
     });
     videoEl.srcObject = stream;
-  } catch(e) {
-    setStatus('Camera error — check permissions', 'err');
-  }
+  }catch(e){ setStatus('Camera error — check permissions','err'); }
   renderAll();
 })();
 
-// ── GEMINI CALL ─────────────────────────────────────────────────────────────────
-async function callGemini(b64, retries = 3) {
+// ── GEMINI ───────────────────────────────────────────────────────────────────
+async function callGemini(b64, retries=3){
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
   const body = {
-    contents: [{ parts: [
-      { text: PROMPT },
-      { inlineData: { mimeType: 'image/jpeg', data: b64 } }
+    contents:[{parts:[
+      {text:PROMPT},
+      {inlineData:{mimeType:'image/jpeg',data:b64}}
     ]}],
-    generationConfig: { temperature: 0.1, responseMimeType: 'application/json' }
+    generationConfig:{ temperature:0.1, responseMimeType:'application/json' }
   };
-  const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-
-  if (resp.status === 429) {
-    if (retries <= 0) throw new Error('Rate limited after retries');
-    setStatus(`Rate limited — waiting 6s… (${retries} retries left)`, 'busy');
+  const resp = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(resp.status===429){
+    if(retries<=0) throw new Error('Rate limited');
+    setStatus(`Rate limited — retrying in 6s (${retries} left)`,'busy');
     await sleep(6000);
-    return callGemini(b64, retries - 1);
+    return callGemini(b64, retries-1);
   }
-  if (!resp.ok) throw new Error(`Gemini HTTP ${resp.status}`);
-
+  if(!resp.ok) throw new Error(`Gemini HTTP ${resp.status}`);
   const json = await resp.json();
   const raw  = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  // Strip any accidental markdown fences just in case
-  const clean = raw.replace(/```json|```/gi, '').trim();
-  return JSON.parse(clean);
+  const clean = raw.replace(/```json|```/gi,'').trim();
+  let parsed;
+  try{ parsed = JSON.parse(clean); }
+  catch(e){ throw new Error(`AI JSON parse failed: ${clean.slice(0,80)}`); }
+  if(!parsed?.artist || !parsed?.title) throw new Error('AI response missing artist/title');
+  return parsed;
 }
 
-// ── DISCOGS HELPERS ─────────────────────────────────────────────────────────────
-const PROXIES = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
-async function discogsGet(endpoint) {
+// ── DISCOGS ───────────────────────────────────────────────────────────────────
+async function discogsGet(endpoint){
   const full = `https://api.discogs.com${endpoint}`;
-  for (const proxy of PROXIES) {
-    try {
-      const r = await fetch(proxy + encodeURIComponent(full));
-      if (r.ok) return await r.json();
-    } catch(_) {}
+  for(const proxy of PROXIES){
+    try{
+      const r = await fetch(proxy(full));
+      if(r.ok) return await r.json();
+    }catch(_){}
   }
   throw new Error('All proxies failed');
 }
 
-function isVinyl(formatArr) {
-  if (!Array.isArray(formatArr) || formatArr.length === 0) return true;
-  const s = formatArr.join(' ').toLowerCase();
-  if (['vinyl','12"','10"','7"','lp','single','white label','test pressing'].some(v => s.includes(v))) return true;
-  if (['cd','file','mp3','flac','cassette','dvd','dat','blu-ray'].some(b => s.includes(b))) return false;
+function isVinyl(fmt){
+  if(!Array.isArray(fmt)||!fmt.length) return true;
+  const s = fmt.join(' ').toLowerCase();
+  if(['vinyl','12"','10"','7"','lp','ep','single','white label','test pressing'].some(v=>s.includes(v))) return true;
+  if(['cd','file','mp3','flac','cassette','dvd','dat','blu-ray'].some(b=>s.includes(b))) return false;
   return true;
 }
 
-async function discogsSearch(data) {
-  // Strategy 1: artist + title
-  let results = await trySearch(`${data.artist} ${data.title}`);
-  // Strategy 2: title only (useful for compilations / artist name variation)
-  if (!results.length) results = await trySearch(data.title);
-  // Strategy 3: catalog number alone (most precise)
-  if (!results.length && data.catalog) results = await trySearch(data.catalog);
-  // Strategy 4: first prominent track
-  if (!results.length && data.tracks?.length) {
-    const t = data.tracks[0].replace(/^(side [ab]|[ab]\d+)[:\s-]*/i,'').replace(/^\d+[\.\s-]+/,'').trim();
-    if (t.length > 4) results = await trySearch(`${data.artist} ${t}`);
+// SCORING — higher is better match
+function scoreMatch(r, data){
+  let sc = 0;
+  const rt = (r.title||'').toLowerCase();
+  const ra = (r.artist||'').toLowerCase();
+  const dt = data.title.toLowerCase();
+  const da = data.artist.toLowerCase();
+  if(rt.includes(dt)||dt.includes(rt)) sc += 4;
+  if(ra.includes(da)||da.includes(ra)) sc += 4;
+  if(data.catalog && r.catno){
+    const rc = r.catno.toLowerCase().replace(/\s/g,'');
+    const dc = data.catalog.toLowerCase().replace(/\s/g,'');
+    if(rc===dc) sc += 6;
+    else if(rc.includes(dc)||dc.includes(rc)) sc += 3;
   }
-  return results.filter(r => isVinyl(r.format));
+  if(r.year && data.year && r.year===data.year) sc += 2;
+  // Prefer specific releases over masters
+  if(r.type==='release') sc += 1;
+  return sc;
 }
 
-async function trySearch(q) {
-  try {
-    const clean = q.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
-    const d = await discogsGet(`/database/search?q=${encodeURIComponent(clean)}&type=release&per_page=15&token=${DISCOGS_TOKEN}`);
-    return d.results || [];
-  } catch(_) { return []; }
+async function discogsSearch(data){
+  const run = async q => {
+    try{
+      const clean = q.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+      const d = await discogsGet(
+        `/database/search?q=${encodeURIComponent(clean)}&type=release&per_page=20&token=${DISCOGS_TOKEN}`
+      );
+      return d.results||[];
+    }catch(_){ return []; }
+  };
+
+  let results = [];
+
+  // 1. Artist + Title
+  results = await run(`${data.artist} ${data.title}`);
+  // 2. Title only (for compilations / artist name variation)
+  if(results.length<3) results=[...results,...(await run(data.title))];
+  // 3. Catalog number alone — most precise
+  if(data.catalog) results=[...results,...(await run(data.catalog))];
+  // 4. First track as hook
+  if(results.length<2 && data.tracks?.length){
+    const t = data.tracks[0].replace(/^(side [ab]|[ab]\d+|a\d+|b\d+)[:\s\-–]*/i,'').replace(/^\d+[\.\s\-–]+/,'').trim();
+    if(t.length>4) results=[...results,...(await run(`${data.artist} ${t}`))];
+  }
+
+  // Deduplicate by id, filter to vinyl, score & sort
+  const seen = new Set();
+  const unique = results.filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return isVinyl(r.format); });
+  unique.sort((a,b)=>scoreMatch(b,data)-scoreMatch(a,data));
+  return unique.slice(0,5); // top 5
 }
 
-async function getPrice(releaseId) {
-  try {
+async function getPrice(releaseId){
+  try{
     const d = await discogsGet(`/marketplace/stats/${releaseId}?token=${DISCOGS_TOKEN}&curr_abbr=USD`);
-    if (d?.lowest_price?.value)  return d.lowest_price.value.toFixed(2);
-    if (d?.median_price?.value)  return d.median_price.value.toFixed(2);
-  } catch(_) {}
+    if(d?.lowest_price?.value)  return {price:d.lowest_price.value.toFixed(2),  label:'lowest'};
+    if(d?.median_price?.value)  return {price:d.median_price.value.toFixed(2),  label:'median'};
+  }catch(_){}
   return null;
 }
 
-// ── SCAN FLOW ───────────────────────────────────────────────────────────────────
-async function doScan() {
-  if (scanning) return;
-  if (!videoEl.videoWidth) { setStatus('Camera not ready', 'err'); return; }
-
-  scanning = true;
-  document.getElementById('scanBtn').classList.add('scanning');
-  setStatus('Reading image with AI…', 'busy');
-  setCamLabel('READING…', true);
+// ── SCAN FLOW ─────────────────────────────────────────────────────────────────
+async function doScan(){
+  if(scanning) return;
+  if(!videoEl.videoWidth){ setStatus('Camera not ready','err'); return; }
+  scanning=true;
+  document.getElementById('scanBtn').classList.add('active');
+  setStatus('Reading with Gemini…','busy');
+  setCamLabel('READING…',true);
 
   canvasEl.width  = videoEl.videoWidth;
   canvasEl.height = videoEl.videoHeight;
-  ctxSnap.drawImage(videoEl, 0, 0);
-  const b64 = canvasEl.toDataURL('image/jpeg', 0.85).split(',')[1];
+  ctxSnap.drawImage(videoEl,0,0);
+  const b64 = canvasEl.toDataURL('image/jpeg',0.85).split(',')[1];
 
-  try {
+  try{
     const aiData = await callGemini(b64);
-    if (!aiData?.artist || !aiData?.title) throw new Error('AI returned incomplete data');
-
-    setStatus('Searching Discogs…', 'busy');
-    setCamLabel('SEARCHING DISCOGS…', true);
-
-    await showConfirm(aiData);
-
-  } catch(e) {
+    setStatus('Searching Discogs…','busy');
+    setCamLabel('SEARCHING DISCOGS…',true);
+    await openConfirm(aiData);
+  }catch(e){
     console.error(e);
-    setStatus(`Scan failed: ${e.message}`, 'err');
-    setCamLabel('SCAN FAILED — RETRY', false);
-    setTimeout(() => { setCamLabel('Aim at tracklist or centre label', false); setStatus('Ready','ok'); }, 3000);
+    setStatus(`Scan failed: ${e.message}`,'err');
+    setCamLabel('SCAN FAILED — RETRY',false);
+    setTimeout(()=>{ setCamLabel('Aim at tracklist or centre label',false); setStatus('Ready','ok'); },3000);
+  }
+  scanning=false;
+  document.getElementById('scanBtn').classList.remove('active');
+}
+
+async function openConfirm(aiData, forceMatches=null){
+  pendingAiData = aiData;
+  const matches = forceMatches !== null ? forceMatches : await discogsSearch(aiData);
+  pendingMatches = matches;
+  selectedMatchIdx = 0;
+
+  // Price fetch for top match
+  let priceData = null;
+  if(matches[0]) priceData = await getPrice(matches[0].id);
+
+  // Populate fixed info
+  document.getElementById('cfArtist').textContent = aiData.artist;
+  document.getElementById('cfTitle').textContent  = aiData.title;
+  document.getElementById('cfTracks').innerHTML   = (aiData.tracks||[]).map(t=>`• ${t}`).join('<br>');
+  document.getElementById('cfPriceInput').value   = priceData?.price || '';
+
+  const match = matches[0]||null;
+  document.getElementById('cfMeta').textContent = match
+    ? `${match.catno||aiData.catalog||'—'}  •  ${match.year||aiData.year||''}  •  ✓ MATCH`
+    : `${aiData.catalog||'—'}  •  ${aiData.year||''}  •  NO MATCH`;
+  document.getElementById('cfPrice').textContent    = priceData ? `$${priceData.price}` : (match?'$—':'');
+  document.getElementById('cfPriceLbl').textContent = priceData?.label ? `${priceData.label} price` : '';
+
+  // Match picker
+  const section = document.getElementById('cfMatchSection');
+  const list    = document.getElementById('cfMatchList');
+  if(matches.length>0){
+    section.style.display='';
+    list.innerHTML = matches.map((r,i)=>{
+      const sc = scoreMatch(r,aiData);
+      const pct = Math.min(100,Math.round(sc/14*100));
+      return `<button class="match-opt${i===0?' sel':''}" onclick="selectMatch(${i})" id="mopt${i}">
+        <img src="${r.cover_image||''}" onerror="this.style.opacity=0">
+        <div class="match-opt-info">
+          <div class="match-opt-title">${esc(r.title||'')}</div>
+          <div class="match-opt-sub">${esc(r.catno||'')} • ${r.year||''} • ${esc((r.country||''))} </div>
+          <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="match-score">${sc}pt</div>
+      </button>`;
+    }).join('');
+  }else{
+    section.style.display='none';
   }
 
-  scanning = false;
-  document.getElementById('scanBtn').classList.remove('scanning');
+  const manualUrl=`https://www.discogs.com/search/?q=${encodeURIComponent(aiData.artist+' '+aiData.title)}`;
+  document.getElementById('cfManualBtn').onclick=()=>window.open(manualUrl,'_blank');
+
+  document.getElementById('cfAddBtn').onclick = addToInventory;
+  openModal('moConfirm');
+  setCamLabel(match?'MATCH FOUND — CONFIRM':'NO MATCH — REVIEW','match');
+  setStatus(match?`Match found (score ${scoreMatch(match,aiData)}pt) — confirm to add`:'No Discogs match — review needed', match?'ok':'busy');
 }
 
-async function showConfirm(aiData, existingMatch = null) {
-  setCamLabel('MATCH FOUND — CONFIRM', false);
-
-  // Run Discogs search in parallel with pricing (if we have a match already)
-  let matches = existingMatch ? [existingMatch] : await discogsSearch(aiData);
-  const match = matches[0] || null;
-
-  let price = null;
-  if (match) price = await getPrice(match.id);
-
-  // Populate modal
-  document.getElementById('cfArtist').textContent  = aiData.artist;
-  document.getElementById('cfTitle').textContent   = aiData.title;
-  document.getElementById('cfMeta').textContent    = match
-    ? `${match.catno || aiData.catalog || '—'}  •  ${match.year || aiData.year || ''}  •  MATCH ✓`
-    : `${aiData.catalog || '—'}  •  ${aiData.year || ''}  •  NO MATCH`;
-  document.getElementById('cfPrice').textContent   = price ? `$${price}` : (match ? '$ —' : '');
-  document.getElementById('cfTracks').innerHTML    = (aiData.tracks||[]).map(t=>`• ${t}`).join('<br>');
-
-  const manualUrl = `https://www.discogs.com/search/?q=${encodeURIComponent(aiData.artist+' '+aiData.title)}`;
-  document.getElementById('cfManualBtn').onclick   = () => window.open(manualUrl,'_blank');
-
-  document.getElementById('cfAddBtn').onclick = () => {
-    const id  = crypto.randomUUID();
-    const genre = match
-      ? ([...(match.style||[]),...(match.genre||[])]).join(', ')
-      : (aiData.genres||[]).join(', ');
-
-    const rec = {
-      id,
-      discogs_id  : match ? match.id : null,
-      artist      : aiData.artist,
-      title       : aiData.title,
-      sku         : match ? (match.catno || aiData.catalog || '') : (aiData.catalog || ''),
-      year        : match ? (match.year || aiData.year || '') : (aiData.year || ''),
-      tracks      : aiData.tracks || [],
-      genre,
-      price       : price || (match ? 'TBC' : 'TBC'),
-      thumb       : match ? match.cover_image : '',
-      status      : match ? 'PRICED' : 'REVIEW',
-      country     : match?.country || ''
-    };
-
-    // Duplicate check by artist+title (case-insensitive)
-    const dup = records.find(r =>
-      r.artist.toLowerCase() === rec.artist.toLowerCase() &&
-      r.title.toLowerCase()  === rec.title.toLowerCase()
-    );
-    if (dup) {
-      if (!confirm(`"${rec.artist} — ${rec.title}" is already in inventory. Add again?`)) {
-        closeModal('confirmModal');
-        resetScanUI();
-        return;
-      }
+function selectMatch(i){
+  selectedMatchIdx = i;
+  document.querySelectorAll('.match-opt').forEach((el,j)=>el.classList.toggle('sel',j===i));
+  // Update price for selected match
+  getPrice(pendingMatches[i].id).then(p=>{
+    if(p){
+      document.getElementById('cfPrice').textContent    = `$${p.price}`;
+      document.getElementById('cfPriceLbl').textContent = `${p.label} price`;
+      if(!document.getElementById('cfPriceInput').value) document.getElementById('cfPriceInput').value=p.price;
     }
+  });
+  const m = pendingMatches[i];
+  document.getElementById('cfMeta').textContent = `${m.catno||'—'}  •  ${m.year||''}  •  ✓ MATCH`;
+}
 
-    records.push(rec);
-    save();
-    renderAll();
-    if (SHEETS_URL) syncToSheets(rec);
-    closeModal('confirmModal');
-    resetScanUI();
-    setStatus(`Added: ${rec.artist} — ${rec.title}`, 'ok');
+function addToInventory(){
+  const aiData = pendingAiData;
+  const match  = pendingMatches[selectedMatchIdx]||null;
+  const priceOverride = parseFloat(document.getElementById('cfPriceInput').value)||null;
+
+  const genre = match
+    ? [...(match.style||[]),...(match.genre||[])].join(', ')
+    : (aiData.genres||[]).join(', ');
+
+  // Duplicate check
+  const dup = records.find(r=>
+    r.artist.toLowerCase()===aiData.artist.toLowerCase() &&
+    r.title.toLowerCase() ===aiData.title.toLowerCase()
+  );
+  if(dup && !confirm(`"${aiData.artist} — ${aiData.title}" already in inventory. Add again?`)){
+    closeModal('moConfirm'); resetScanUI(); return;
+  }
+
+  const rec={
+    id         : crypto.randomUUID(),
+    discogs_id : match?.id||null,
+    artist     : aiData.artist,
+    title      : aiData.title,
+    sku        : match?.catno||aiData.catalog||'',
+    year       : match?.year||aiData.year||'',
+    tracks     : aiData.tracks||[],
+    genre,
+    price      : priceOverride
+                   ? priceOverride.toFixed(2)
+                   : (pendingMatches[0] ? '0.00' : 'TBC'),
+    thumb      : match?.cover_image||'',
+    status     : (match && (priceOverride || pendingMatches[0])) ? 'PRICED' : 'REVIEW',
+    country    : match?.country||''
   };
 
-  showModal('confirmModal');
-  setStatus(match ? 'Match found — confirm to add' : 'No Discogs match — review needed', match ? 'ok' : 'busy');
+  // If no price fetched yet, do it now
+  if(rec.status==='PRICED' && rec.price==='0.00' && match){
+    getPrice(match.id).then(p=>{
+      if(p){ rec.price=p.price; save(); renderAll(); }
+    });
+  }
+
+  records.push(rec);
+  save(); renderAll();
+  if(SHEETS_URL) syncToSheets(rec);
+  closeModal('moConfirm'); resetScanUI();
+  setStatus(`Added: ${rec.artist} — ${rec.title}`,'ok');
 }
 
-async function retryRecord(id) {
-  const rec = records.find(r => r.id === id);
-  if (!rec) return;
-  setStatus(`Retrying Discogs search for ${rec.artist}…`, 'busy');
-  const matches = await discogsSearch({ artist: rec.artist, title: rec.title, catalog: rec.sku, tracks: rec.tracks });
-  const match   = matches[0] || null;
-  if (!match) { setStatus('Still no match found', 'err'); return; }
-  const price = await getPrice(match.id);
-  const genre = ([...(match.style||[]),...(match.genre||[])]).join(', ');
-  Object.assign(rec, {
-    discogs_id: match.id,
-    sku: match.catno || rec.sku,
-    year: match.year || rec.year,
-    genre: genre || rec.genre,
-    price: price || rec.price,
-    thumb: match.cover_image || rec.thumb,
-    status: 'PRICED',
-    country: match.country || ''
-  });
+// ── RETRY (Review items) ──────────────────────────────────────────────────────
+async function retryRecord(id){
+  const rec = records.find(r=>r.id===id);
+  if(!rec) return;
+  setStatus(`Retrying: ${rec.artist}…`,'busy');
+  const matches = await discogsSearch({artist:rec.artist,title:rec.title,catalog:rec.sku,tracks:rec.tracks,year:rec.year});
+  if(!matches.length){ setStatus('Still no match found','err'); return; }
+  // Re-open confirm with fetched matches so user can pick
+  pendingAiData = {artist:rec.artist,title:rec.title,catalog:rec.sku,year:rec.year,tracks:rec.tracks,genres:rec.genre.split(',')};
+  // Remove old record so addToInventory replaces it cleanly
+  records = records.filter(r=>r.id!==id);
   save();
-  renderAll();
-  setStatus(`Updated: ${rec.artist} — ${rec.title}`, 'ok');
+  await openConfirm(pendingAiData, matches);
 }
 
-// ── RENDER ──────────────────────────────────────────────────────────────────────
-function renderAll() {
-  const inv = records.filter(r => r.status === 'PRICED');
-  const rev = records.filter(r => r.status === 'REVIEW');
+// ── EDIT ──────────────────────────────────────────────────────────────────────
+function openEdit(id){
+  const r = records.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('editId').value     = id;
+  document.getElementById('editArtist').value = r.artist;
+  document.getElementById('editTitle').value  = r.title;
+  document.getElementById('editSku').value    = r.sku;
+  document.getElementById('editGenre').value  = r.genre;
+  document.getElementById('editPrice').value  = r.price;
+  openModal('moEdit');
+}
+function saveEdit(){
+  const id = document.getElementById('editId').value;
+  const r  = records.find(x=>x.id===id);
+  if(!r) return;
+  r.artist = document.getElementById('editArtist').value.trim()||r.artist;
+  r.title  = document.getElementById('editTitle').value.trim()||r.title;
+  r.sku    = document.getElementById('editSku').value.trim();
+  r.genre  = document.getElementById('editGenre').value.trim();
+  const p  = parseFloat(document.getElementById('editPrice').value);
+  if(!isNaN(p) && p>0){ r.price=p.toFixed(2); r.status='PRICED'; }
+  save(); renderAll(); closeModal('moEdit');
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderAll(){
+  const inv = records.filter(r=>r.status==='PRICED');
+  const rev = records.filter(r=>r.status==='REVIEW'||r.status==='TBC');
 
   document.getElementById('listInv').innerHTML = inv.length
-    ? inv.slice().reverse().map(r => rowHTML(r, false)).join('')
-    : `<div class="empty-state"><div class="em-icon">💿</div><p>No priced records yet.<br>Scan a sleeve to get started.</p></div>`;
+    ? inv.slice().reverse().map(r=>rowHTML(r,false)).join('')
+    : `<div class="empty-state"><div class="em">💿</div><p>No priced records yet.<br>Scan a sleeve to get started.</p></div>`;
 
   document.getElementById('listRev').innerHTML = rev.length
-    ? rev.slice().reverse().map(r => rowHTML(r, true)).join('')
-    : `<div class="empty-state"><div class="em-icon">✓</div><p>Nothing needs reviewing.</p></div>`;
+    ? rev.slice().reverse().map(r=>rowHTML(r,true)).join('')
+    : `<div class="empty-state"><div class="em">✓</div><p>Nothing needs reviewing.</p></div>`;
 
-  // Badges
   document.getElementById('badgeInv').textContent = inv.length;
-  const badgeRev = document.getElementById('badgeRev');
-  badgeRev.textContent = rev.length;
-  badgeRev.style.display = rev.length ? '' : 'none';
+  const br = document.getElementById('badgeRev');
+  br.textContent = rev.length; br.style.display = rev.length?'':'none';
 
-  // Stats (priced only)
   document.getElementById('statItems').textContent = inv.length;
-  const total = inv.reduce((s, r) => s + (parseFloat(r.price) || 0), 0);
+  const total = inv.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   document.getElementById('statVal').textContent = total.toFixed(2);
 }
 
-function rowHTML(r, isReview) {
+function rowHTML(r, isReview){
   const colour = genreColour(r.genre);
-  const topGenres = r.genre ? r.genre.split(',').slice(0,3).map(g=>`<span class="tag">${g.trim()}</span>`).join('') : '';
-  const priceDisplay = isReview ? '—' : `$${r.price}`;
-
-  const actionRow = isReview ? `
-    <div class="rec-actions">
-      <button class="act-btn retry" onclick="retryRecord('${r.id}')">↻ Retry</button>
-      <button class="act-btn ext" onclick="window.open('https://www.discogs.com/search/?q=${encodeURIComponent(r.artist+' '+r.title)}','_blank')">Discogs ↗</button>
-      <button class="act-btn ext" onclick="window.open('https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(r.artist+' '+r.title+' vinyl')}','_blank')">eBay ↗</button>
-    </div>` : '';
-
+  const topGenres = (r.genre||'').split(',').slice(0,3).map(g=>`<span class="tag">${esc(g.trim())}</span>`).join('');
   return `
-    <div class="rec-row${isReview?' review-row':''}">
+    <div class="rec-row${isReview?' review':''}">
       <div class="rec-bar" style="background:${colour}"></div>
       <div class="rec-body">
         <div class="rec-artist">${esc(r.artist)}</div>
-        <div class="rec-title">${esc(r.title)}${r.sku ? ` <span style="color:var(--muted2)">[${esc(r.sku)}]</span>` : ''}${r.year ? ` <span style="color:var(--muted2)">${r.year}</span>` : ''}</div>
+        <div class="rec-title">${esc(r.title)}${r.sku?` <span style="color:var(--muted2)">[${esc(r.sku)}]</span>`:''}${r.year?` <span style="color:var(--muted2)">${r.year}</span>`:''}</div>
         <div class="rec-tags">
-          ${isReview ? '<span class="tag review">⚠ Review</span>' : '<span class="tag green">✓ Priced</span>'}
+          ${isReview?'<span class="tag warn">⚠ Review</span>':'<span class="tag ok">✓ Priced</span>'}
           ${topGenres}
-          ${r.country ? `<span class="tag">${esc(r.country)}</span>` : ''}
+          ${r.country?`<span class="tag">${esc(r.country)}</span>`:''}
         </div>
       </div>
       <div class="rec-right">
         <button class="rec-del" onclick="deleteRecord('${r.id}')">✕</button>
-        <div class="rec-price">${priceDisplay}</div>
+        <div class="rec-price" onclick="openEdit('${r.id}')" title="Tap to edit">${isReview?'—':'$'+r.price}</div>
       </div>
-    </div>${actionRow}`;
+    </div>
+    ${isReview?`<div class="rev-actions">
+      <button class="act-btn retry" onclick="retryRecord('${r.id}')">↻ Retry</button>
+      <button class="act-btn" onclick="openEdit('${r.id}')">✏ Edit</button>
+      <button class="act-btn" onclick="window.open('https://www.discogs.com/search/?q=${encodeURIComponent(r.artist+' '+r.title)}','_blank')">Discogs ↗</button>
+      <button class="act-btn" onclick="window.open('https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(r.artist+' '+r.title+' vinyl')}','_blank')">eBay ↗</button>
+    </div>`:''}`;
 }
 
-// ── TABS ────────────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  currentTab = tab;
-  document.getElementById('listInv').style.display = tab === 'inv' ? '' : 'none';
-  document.getElementById('listRev').style.display = tab === 'rev' ? '' : 'none';
-  document.getElementById('tab-inv').classList.toggle('active', tab === 'inv');
-  document.getElementById('tab-rev').classList.toggle('active', tab === 'rev');
-}
+// ── CSV EXPORT ────────────────────────────────────────────────────────────────
+// Shopify-compatible + Discogs Marketplace columns in same file
+function exportCSV(){
+  const rows = records.filter(r=>r.status==='PRICED' && r.price!=='TBC');
+  if(!rows.length){ alert('No priced records to export.'); return; }
 
-// ── CSV EXPORT ──────────────────────────────────────────────────────────────────
-// Multi-platform: Shopify + Discogs Marketplace columns included
-function exportCSV() {
-  const priced = records.filter(r => r.status === 'PRICED' && r.price !== 'TBC');
-  if (!priced.length) { alert('No priced records to export.'); return; }
-
-  const headers = [
-    // Shopify columns
-    'Handle','Title','Vendor','Type','Tags','Published',
+  const headers=[
+    'Handle','Title','Body (HTML)','Vendor','Tags','Published','Status',
     'Variant SKU','Variant Price','Variant Inventory Qty','Variant Inventory Policy',
-    'Body HTML','Image Src',
+    'Image Src',
     // Discogs Marketplace extras
     'Discogs Release ID','Year','Country','Catalog Number','Media Condition','Sleeve Condition'
   ];
 
-  const rows = priced.map(r => {
-    const handle    = `${r.artist}-${r.title}`.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    const bodyHtml  = r.tracks?.length ? `<b>Tracklist:</b><br>${r.tracks.map(t=>`• ${t}`).join('<br>')}` : '';
-    const tags      = ['Vinyl', ...( r.genre ? r.genre.split(',').map(g=>g.trim()) : [])].join(', ');
-
+  const lines = rows.map(r=>{
+    const handle = `${r.artist}-${r.title}`.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const body   = r.tracks?.length ? `<b>Tracklist:</b><br>${r.tracks.map(t=>`• ${t}`).join('<br>')}` : '';
+    const tags   = ['Vinyl',...(r.genre?r.genre.split(',').map(g=>g.trim()):[])].join(', ');
     return [
-      csv(handle), csv(r.title), csv(r.artist), csv('Vinyl'), csv(tags), 'TRUE',
-      csv(r.sku), csv(parseFloat(r.price).toFixed(2)), '1', 'deny',
-      csv(bodyHtml), csv(r.thumb || ''),
-      csv(r.discogs_id || ''), csv(r.year || ''), csv(r.country || ''),
+      csv(handle), csv(`${r.artist} - ${r.title}`), csv(body),
+      csv(r.artist), csv(tags), csv('TRUE'), csv('active'),
+      csv(r.sku), csv(parseFloat(r.price).toFixed(2)), csv('1'), csv('deny'),
+      csv(r.thumb||''),
+      csv(r.discogs_id||''), csv(r.year||''), csv(r.country||''),
       csv(r.sku), csv('Very Good Plus (VG+)'), csv('Very Good Plus (VG+)')
     ].join(',');
   });
 
-  const blob = new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv' });
+  const blob = new Blob([[headers.join(','),...lines].join('\n')],{type:'text/csv'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `vinylshop_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
 }
+function csv(v){ return `"${String(v==null?'':v).replace(/"/g,'""')}"`; }
 
-function csv(v) {
-  if (v === null || v === undefined) return '""';
-  return `"${String(v).replace(/"/g, '""')}"`;
+// ── BACKUP / RESTORE ──────────────────────────────────────────────────────────
+function backupJSON(){
+  const blob = new Blob([JSON.stringify(records,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `vinylshop_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+function restoreJSON(e){
+  const file = e.target.files[0]; if(!file) return;
+  const fr = new FileReader();
+  fr.onload = ev=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!Array.isArray(data)) throw new Error('Not an array');
+      if(confirm(`Import ${data.length} records? This will MERGE with current inventory.`)){
+        // Merge — skip exact duplicates by id
+        const existingIds = new Set(records.map(r=>r.id));
+        const newOnes = data.filter(r=>!existingIds.has(r.id));
+        records = [...records,...newOnes];
+        save(); renderAll();
+        setStatus(`Restored ${newOnes.length} records`,'ok');
+      }
+    }catch(err){ alert('Invalid backup file: '+err.message); }
+  };
+  fr.readAsText(file);
+  e.target.value='';
 }
 
-// ── UTILS ───────────────────────────────────────────────────────────────────────
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function save() { localStorage.setItem('vr', JSON.stringify(records)); }
-function deleteRecord(id) {
-  records = records.filter(r => r.id !== id);
-  save(); renderAll();
-}
-function clearAll() {
-  if (confirm('Clear entire inventory?')) { records = []; save(); renderAll(); }
-}
-function showModal(id)  { document.getElementById(id).classList.add('show'); }
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function save(){ localStorage.setItem('vr',JSON.stringify(records)); }
+function deleteRecord(id){ records=records.filter(r=>r.id!==id); save(); renderAll(); }
+function clearAll(){ if(confirm('Clear entire inventory?')){ records=[]; save(); renderAll(); } }
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-function resetScanUI()  {
-  setCamLabel('Aim at tracklist or centre label', false);
-  setStatus('Ready', 'ok');
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('listInv').style.display = tab==='inv'?'':'none';
+  document.getElementById('listRev').style.display = tab==='rev'?'':'none';
+  document.getElementById('tab-inv').classList.toggle('active',tab==='inv');
+  document.getElementById('tab-rev').classList.toggle('active',tab==='rev');
 }
-function setCamLabel(text, scanning) {
-  const el = document.getElementById('camLabel');
-  el.textContent = text;
-  el.classList.toggle('scanning', scanning);
-  el.classList.toggle('ok', !scanning && text.includes('FOUND'));
+function resetScanUI(){
+  setCamLabel('Aim at tracklist or centre label',false);
+  setStatus('Ready','ok');
 }
-function setStatus(text, state) {
-  document.getElementById('statusText').textContent = text;
-  const dot = document.getElementById('statusDot');
-  dot.className = 'status-dot' + (state === 'busy' ? ' busy' : state === 'err' ? ' err' : '');
+function setCamLabel(text,scanning){
+  const el=document.getElementById('camLabel');
+  el.textContent=text;
+  el.classList.toggle('scanning',scanning);
+  el.classList.toggle('match',!scanning && text.includes('FOUND'));
 }
-function syncToSheets(r) {
-  if (!SHEETS_URL) return;
-  fetch(SHEETS_URL, {
-    method:'POST', mode:'no-cors',
+function setStatus(text,state){
+  document.getElementById('statusText').textContent=text;
+  const dot=document.getElementById('statusDot');
+  dot.className='dot'+(state==='busy'?' busy':state==='err'?' err':'');
+}
+function syncToSheets(r){
+  if(!SHEETS_URL) return;
+  fetch(SHEETS_URL,{
+    method:'POST',mode:'no-cors',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ id:r.id, artist:r.artist, title:r.title, catalog:r.sku,
-      genre:r.genre, year:r.year, price:r.price, tracks:r.tracks.join(' | '),
-      image_url:r.thumb, discogs_id:r.discogs_id })
+    body:JSON.stringify({id:r.id,artist:r.artist,title:r.title,catalog:r.sku,
+      genre:r.genre,year:r.year,price:r.price,tracks:r.tracks.join(' | '),
+      image_url:r.thumb,discogs_id:r.discogs_id,country:r.country})
   });
 }
-function saveSettings() {
-  localStorage.setItem('vg', document.getElementById('cfgGemini').value.trim());
-  localStorage.setItem('vd', document.getElementById('cfgDiscogs').value.trim());
-  localStorage.setItem('vs', document.getElementById('cfgSheets').value.trim());
+function saveSettings(){
+  localStorage.setItem('vg',document.getElementById('cfgGemini').value.trim());
+  localStorage.setItem('vd',document.getElementById('cfgDiscogs').value.trim());
+  localStorage.setItem('vs',document.getElementById('cfgSheets').value.trim());
   location.reload();
 }
-function openSettings() {
+function openSettings(){
   document.getElementById('cfgGemini').value  = API_KEY;
   document.getElementById('cfgDiscogs').value = DISCOGS_TOKEN;
   document.getElementById('cfgSheets').value  = SHEETS_URL;
-  showModal('setupModal');
+  openModal('moSetup');
 }
 </script>
 </body>
