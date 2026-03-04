@@ -116,14 +116,10 @@
   .modal-card input { width: 100%; padding: 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 14px; outline: none; margin-bottom: 16px; }
   .modal-card .btn-primary { width: 100%; padding: 16px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-size: 16px; font-weight: 700; cursor: pointer; }
 
-  .sc-edits { display: flex; gap: 12px; margin: 16px 0; }
-  .sc-field { flex: 1; }
-  .sc-field label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;}
-  .sc-field input { margin-bottom: 0; padding: 12px; }
-  .sc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .sc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
   .sc-actions .full { grid-column: 1 / -1; }
   
-  .tracklist-preview { font-size: 10px; color: var(--muted); margin-top: 8px; line-height: 1.4; text-align: left; max-height: 60px; overflow-y: hidden; text-overflow: ellipsis;}
+  .tracklist-preview { font-size: 10px; color: var(--muted); margin-top: 8px; line-height: 1.4; text-align: left; max-height: 80px; overflow-y: hidden; text-overflow: ellipsis;}
 </style>
 </head>
 <body>
@@ -165,12 +161,7 @@
     </div>
     <div id="scBadges" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;"></div>
     
-    <div class="tracklist-preview" id="scTracks" style="max-height:80px; overflow-y:auto; border:1px solid var(--border); padding:8px; border-radius:6px; background:var(--bg);"></div>
-
-    <div class="sc-edits">
-      <div class="sc-field"><label>Year</label><input id="scYear" type="number" placeholder="YYYY"></div>
-      <div class="sc-field"><label>Country</label><input id="scCountry" type="text" placeholder="UK/US"></div>
-    </div>
+    <div class="tracklist-preview" id="scTracks" style="border:1px solid var(--border); padding:8px; border-radius:6px; background:var(--bg);"></div>
 
     <div class="sc-actions">
       <button class="btn-primary full" id="scAddBtn">✓ Add to Inventory</button>
@@ -274,6 +265,22 @@ Return ONLY valid JSON.
 const PALETTE = ['#00e5d4', '#ff4d6d', '#f5c518', '#6e52ff', '#3b9eff', '#c462f5', '#f0c040', '#ff6ec7', '#f5832a', '#5ddb5d', '#a3e635', '#7b8cff', '#e8a87c'];
 let knownGenres = {};
 
+// EXACT FORMAT FILTERING LOGIC
+const YES_FORMATS = ['vinyl', '12"', '7"', '10"', 'lp', '45 rpm', '33 ⅓ rpm', '78 rpm', 'picture disc', 'test pressing', 'white label', 'flexi-disc', 'shape', 'lathe cut', 'acetate', 'shellac'];
+const NO_FORMATS = ['file', 'mp3', 'wav', 'flac', 'aac', 'alac', 'ogg', 'cd', 'cdr', 'sacd', 'minidisc', 'hdcd', 'vcd', 'cassette', 'dat', 'microcassette', '8-track', 'reel-to-reel', 'dvd', 'blu-ray', 'vhs', 'laserdisc', 'mpeg-4', 'usb', 'floppy'];
+
+function isVinylFormat(formatsArray) {
+  if (!formatsArray || !Array.isArray(formatsArray)) return false;
+  const fStr = formatsArray.join(' ').toLowerCase();
+  
+  const hasYes = YES_FORMATS.some(yes => fStr.includes(yes));
+  const hasNo = NO_FORMATS.some(no => fStr.includes(no));
+  
+  if (hasYes) return true;
+  if (hasNo && !hasYes) return false;
+  return false;
+}
+
 function saveLocalRecords() {
   try {
     localStorage.setItem('vinylshop_records', JSON.stringify(records));
@@ -293,6 +300,7 @@ function syncToGoogleSheets(rec) {
   if (!SHEETS_URL) return;
   const formattedTracks = (rec.tracks && rec.tracks.length > 0) ? rec.tracks.join('<br>') : "";
   
+  // Year and Country removed from payload
   const payload = {
     id: rec.id,
     artist: rec.artist,
@@ -302,8 +310,6 @@ function syncToGoogleSheets(rec) {
     genre: rec.genre, 
     tracks: formattedTracks, 
     image_url: rec.thumb || "", 
-    year: rec.editionYear,
-    country: rec.editionCountry,
     price: rec.price
   };
 
@@ -513,7 +519,6 @@ async function processAIResult(data, b64Full) {
   if (discogsData && discogsData.found) {
     rec.artist = discogsData.artist || artist; rec.title = discogsData.title || title;
     rec.discogsUrl = discogsData.discogsUrl; rec.discogsId = discogsData.releaseId;
-    rec.editionYear = discogsData.year; rec.editionCountry = discogsData.country;
     rec.thumb = discogsData.thumb; rec.genre = discogsData.discogsGenre || 'Electronic';
     if (discogsData.tracklist && discogsData.tracklist.length > 0) {
       rec.tracks = discogsData.tracklist;
@@ -530,8 +535,6 @@ function showScanConfirm(r) {
   document.getElementById('scThumb').src = r.thumb || r.rawImage || '';
   document.getElementById('scTitle').textContent = `${r.artist} - ${r.title}`;
   document.getElementById('scMeta').textContent = [r.catalog, r.matrix, r.price && r.price!=="0.00" ? '$'+r.price : ''].filter(Boolean).join(' \u2022 ');
-  document.getElementById('scYear').value = r.editionYear || '';
-  document.getElementById('scCountry').value = r.editionCountry || '';
   
   const bdg = document.getElementById('scBadges'); bdg.innerHTML = '';
   if (r.status === 'REVIEW') bdg.innerHTML += `<span class="badge" style="border-color:var(--yellow); color:var(--yellow);">Needs Review</span>`;
@@ -553,9 +556,6 @@ function showScanConfirm(r) {
   m.classList.add('show');
   
   document.getElementById('scAddBtn').onclick = () => {
-    r.editionYear = document.getElementById('scYear').value;
-    r.editionCountry = document.getElementById('scCountry').value;
-    
     if (r.status === 'PRICED') delete r.rawImage; 
     
     records.push(r); 
@@ -589,48 +589,43 @@ async function fetchReleaseDetails(releaseId) {
   } catch (e) { return null; }
 }
 
-// -----------------------------------------------------------
-// THE NEW "WATERFALL" DISCOGS SEARCH
-// -----------------------------------------------------------
 async function discogsSearchFlow(artist, title, catalog, matrix, tracks, wasAuto, rawQuery = null) {
   try {
     let res = [];
     
     if (rawQuery) {
-        const url = `https://api.discogs.com/database/search?q=${encodeURIComponent(rawQuery)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+        const url = `https://api.discogs.com/database/search?q=${encodeURIComponent(rawQuery)}&type=release&per_page=15&token=${DISCOGS_TOKEN}`;
         const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
         if (resp.ok) res = (await resp.json()).results || [];
     } else {
-        // Attempt 1: Strict Artist + Release Title (Highest Accuracy)
         if (artist && title && artist !== 'Unknown' && title !== 'Unknown') {
-            const url = `https://api.discogs.com/database/search?artist=${encodeURIComponent(artist)}&release_title=${encodeURIComponent(title)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+            const url = `https://api.discogs.com/database/search?artist=${encodeURIComponent(artist)}&release_title=${encodeURIComponent(title)}&type=release&per_page=15&token=${DISCOGS_TOKEN}`;
             const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
             if (resp.ok) res = (await resp.json()).results || [];
         }
         
-        // Attempt 2: Fallback to Catalog Number if Attempt 1 fails
         if (res.length === 0 && catalog && catalog !== 'unknown') {
-            const url = `https://api.discogs.com/database/search?catno=${encodeURIComponent(catalog)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+            const url = `https://api.discogs.com/database/search?catno=${encodeURIComponent(catalog)}&type=release&per_page=15&token=${DISCOGS_TOKEN}`;
             const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
             if (resp.ok) res = (await resp.json()).results || [];
         }
 
-        // Attempt 3: The "Tracklist Hook" - Search by Artist and exactly 1 track
         if (res.length === 0 && artist && artist !== 'Unknown' && tracks && tracks.length > 0) {
-            const trackName = tracks[0].replace(/^[A-Z0-9]+\.\s*/i, ''); // remove track numbers
-            const url = `https://api.discogs.com/database/search?artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(trackName)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+            const trackName = tracks[0].replace(/^[A-Z0-9]+\.\s*/i, ''); 
+            const url = `https://api.discogs.com/database/search?artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(trackName)}&type=release&per_page=15&token=${DISCOGS_TOKEN}`;
             const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
             if (resp.ok) res = (await resp.json()).results || [];
         }
     }
 
-    const vinyls = res.filter(r => r.format && r.format.some(f => f.toLowerCase().includes('vinyl')));
+    // THE ROBUST FORMAT FILTER
+    const vinyls = res.filter(r => isVinylFormat(r.format));
     if (!vinyls.length) return null;
 
     let rel = vinyls[0];
     if (vinyls.length > 1 && !rawQuery) {
       if(wasAuto) clearTimeout(autoScanTimer);
-      rel = await askUserForEdition(vinyls);
+      rel = await askUserForEdition(vinyls.slice(0,6)); // Max 6 choices for UI
     }
 
     const releaseDetails = await fetchReleaseDetails(rel.id);
@@ -664,7 +659,7 @@ async function discogsSearchFlow(artist, title, catalog, matrix, tracks, wasAuto
     return {
       found: true, releaseId: rel.id, thumb: rel.cover_image || rel.thumb || '', discogsUrl: `https://www.discogs.com${rel.uri || '/release/'+rel.id}`,
       suggestedPrice: priceStr,
-      year: rel.year||'', country: rel.country||'', discogsGenre: finalGenres, tracklist: finalTracklist, artist: fArt, title: fTit
+      discogsGenre: finalGenres, tracklist: finalTracklist, artist: fArt, title: fTit
     };
   } catch(e) { return null; }
 }
@@ -684,9 +679,9 @@ function askUserForEdition(releases) {
       releases.forEach((r, idx) => {
         const btn = document.createElement('button');
         btn.className = 'edition-btn';
+        
+        // Strip Year and Country logic here, just use label & format
         const title = r.title || 'Unknown Title';
-        const year = r.year ? r.year : '?';
-        const country = r.country ? r.country : '?';
         const formats = r.format ? r.format.join(', ') : 'Vinyl';
         const label = (r.label && r.label.length) ? r.label[0] : '';
         const thumb = r.cover_image || r.thumb || '';
@@ -697,9 +692,9 @@ function askUserForEdition(releases) {
 
         btn.innerHTML = `<img src="${thumb}" onerror="this.style.opacity='0'">
           <div class="edition-info">
-            <strong>${year} • ${country}</strong>
+            <strong>${label}</strong>
             <span class="title">${title}</span>
-            <span class="details">${label} | ${formats}</span>
+            <span class="details">${formats}</span>
             ${trackHtml}
           </div>`;
         btn.onclick = () => { modal.classList.add('hidden'); resolve(r); };
@@ -769,7 +764,6 @@ function renderLists() {
           <div class="scan-title">${r.title} ${r.catalog?'['+r.catalog+']':''}</div>
           <div class="scan-badges">
             ${badgeHtml}
-            ${r.editionYear ? `<span class="badge">${r.editionYear} ${r.editionCountry||''}</span>` : ''}
             ${r.discogsUrl ? `<a href="${r.discogsUrl}" target="_blank" class="badge" style="text-decoration:none;">Discogs\u2197</a>` : ''}
           </div>
         </div>
@@ -805,7 +799,7 @@ async function editRecord(id) {
   if(dData && dData.found) {
     r.artist = dData.artist; r.title = dData.title; r.discogsUrl = dData.discogsUrl;
     r.price = dData.suggestedPrice || "0.00"; r.thumb = dData.thumb;
-    r.editionYear = dData.year; r.editionCountry = dData.country; r.genre = dData.discogsGenre || r.genre;
+    r.genre = dData.discogsGenre || r.genre;
     if (dData.tracklist && dData.tracklist.length > 0) r.tracks = dData.tracklist;
     r.status = 'PRICED';
     delete r.rawImage; 
@@ -840,7 +834,8 @@ function clearAll() {
 function downloadCSV() {
   const uniq = records.filter(r => r.status!=='REVIEW'); if(!uniq.length) return;
   
-  const rows = [['Variant SKU','Vendor','Title','Variant Price','Tags','Body HTML','Image Src','Matrix','Year','Country']];
+  // Year and Country removed from Headers
+  const rows = [['Variant SKU','Vendor','Title','Variant Price','Tags','Body HTML','Image Src','Matrix']];
   
   uniq.forEach(r => {
     const formattedTracks = (r.tracks && r.tracks.length > 0) ? r.tracks.join('<br>') : "";
@@ -854,9 +849,7 @@ function downloadCSV() {
       `"${r.genre}"`, 
       `"${formattedTracks}"`, 
       `"${r.thumb || ''}"`,
-      `"${r.matrix || ''}"`,
-      r.editionYear, 
-      r.editionCountry
+      `"${r.matrix || ''}"`
     ]);
   });
   
