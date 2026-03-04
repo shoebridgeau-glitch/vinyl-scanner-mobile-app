@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>VinylShop — Mobile Text Scanner</title>
+<title>VinylShop — Smart Tracklist Scanner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" />
 <style>
@@ -246,9 +246,6 @@
 </div>
 
 <script>
-// ==========================================
-// 1. GLOBALS & STATE
-// ==========================================
 let API_KEY = '';
 let DISCOGS_TOKEN = '';
 let SHEETS_URL = '';
@@ -265,15 +262,18 @@ let videoEl, canvasEl, ctxSnap;
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const CORS_PROXY  = 'https://corsproxy.io/?';
 
-// Text-focused prompt
-const PROMPT = `You are an expert vinyl record identifier specializing in electronic music. You are looking at a CENTER LABEL or back sleeve. Extract text: CATALOG NUMBER (crucial), MATRIX / RUNOUT CODES, ARTIST, TITLE, LABEL, COUNTRY, YEAR, BARCODE, RPM. Read ALL text carefully. Ignore hands/fingers. Return ONLY valid JSON. {"artist":"...","title":"...","label":"...","catalog":"...","matrix":"...","barcode":"...","country":"...","tracks":["t1","t2"],"year":"...","rpm":"...","genre":"...","confidence":0.0}`;
+// The "Expert Knowledge" Prompt
+const PROMPT = `You are an expert music archivist. Read the text on this record sleeve or center label. 
+Focus heavily on the tracklist and artist names. 
+USING YOUR INTERNAL WIKIPEDIA-LIKE KNOWLEDGE, identify the exact ARTIST and ALBUM/RELEASE TITLE based on the tracklist you read. 
+Do not just guess; cross-reference the tracks to find the specific release.
+Extract any catalog numbers or matrix codes if visible.
+Return ONLY valid JSON.
+{"artist":"...","album":"...","catalog":"...","matrix":"...","tracks":["track 1", "track 2"],"confidence":0.0}`;
 
 const PALETTE = ['#00e5d4', '#ff4d6d', '#f5c518', '#6e52ff', '#3b9eff', '#c462f5', '#f0c040', '#ff6ec7', '#f5832a', '#5ddb5d', '#a3e635', '#7b8cff', '#e8a87c'];
 let knownGenres = {};
 
-// ==========================================
-// 2. LOCAL STORAGE & GOOGLE SHEETS
-// ==========================================
 function saveLocalRecords() {
   try {
     localStorage.setItem('vinylshop_records', JSON.stringify(records));
@@ -291,18 +291,17 @@ function loadLocalRecords() {
 
 function syncToGoogleSheets(rec) {
   if (!SHEETS_URL) return;
-  // Format the tracklist array into a clean string with HTML line breaks for E-commerce product descriptions
   const formattedTracks = (rec.tracks && rec.tracks.length > 0) ? rec.tracks.join('<br>') : "";
   
   const payload = {
     id: rec.id,
     artist: rec.artist,
     title: rec.title,
-    catalog: rec.catalog || rec.matrix || "", // Use as E-Commerce SKU
+    catalog: rec.catalog || rec.matrix || "", 
     matrix: rec.matrix,
-    genre: rec.genre, // Multiple genres comma separated for E-Commerce Tags
-    tracks: formattedTracks, // Body HTML
-    image_url: rec.thumb || "", // Image Src
+    genre: rec.genre, 
+    tracks: formattedTracks, 
+    image_url: rec.thumb || "", 
     year: rec.editionYear,
     country: rec.editionCountry,
     price: rec.price
@@ -316,9 +315,6 @@ function syncToGoogleSheets(rec) {
   }).catch(e => console.error("Sheet sync failed", e));
 }
 
-// ==========================================
-// 3. UI & HELPERS
-// ==========================================
 function getGenreColor(genre) {
   const primeGenre = (genre || 'Other').split(',')[0].trim();
   if (!knownGenres[primeGenre]) knownGenres[primeGenre] = PALETTE[Object.keys(knownGenres).length % PALETTE.length];
@@ -380,9 +376,6 @@ async function runAutoScanLoop(delay) {
   }
 }
 
-// ==========================================
-// 4. SETTINGS & CAMERA INITIALIZATION
-// ==========================================
 function saveSettings() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key || key.length < 10) return document.getElementById('setupErr').textContent = 'Please enter a valid Gemini API key.';
@@ -416,7 +409,7 @@ function openSettings() {
   loadLocalRecords();
   
   if(!savedG) document.getElementById('setupModal').classList.add('show');
-  else saveSettings(); // Auto start
+  else saveSettings(); 
 })();
 
 async function startCamera() {
@@ -435,9 +428,6 @@ async function startCamera() {
   } catch(e) { alert('Camera access required. ' + e.message); }
 }
 
-// ==========================================
-// 5. IMAGE PROCESSING & API CALLS
-// ==========================================
 async function captureAndPreprocess() {
   const fw = videoEl.videoWidth, fh = videoEl.videoHeight;
   canvasEl.width = fw; canvasEl.height = fh;
@@ -475,9 +465,6 @@ async function callGemini(b64, prompt, retries = 2) {
   return data;
 }
 
-// ==========================================
-// 6. CORE SCAN PIPELINE
-// ==========================================
 async function doScan() {
   if (scanning || !videoEl || !videoEl.srcObject) return;
   scanning = true;
@@ -501,7 +488,7 @@ async function doScan() {
 }
 
 async function processAIResult(data, b64Full) {
-  const artist = data.artist || '', title = data.title || '', catalog = data.catalog || '', matrix = data.matrix || '';
+  const artist = data.artist || '', title = data.album || data.title || '', catalog = data.catalog || '', matrix = data.matrix || '';
   let tracks = data.tracks || [];
   const conf = parseFloat(data.confidence || 0);
   const id = 'V-' + crypto.randomUUID().substring(0, 6).toUpperCase();
@@ -517,32 +504,27 @@ async function processAIResult(data, b64Full) {
 
   let rec = { id, artist: artist||'Unknown', title: title||'Unknown', catalog, matrix, tracks, confidence: conf, status: 'REVIEW', rawImage: b64Full, timestamp: new Date().toISOString() };
 
-  if (!artist && !title && !catalog && !matrix) {
+  if (!artist && !title && !catalog && !matrix && tracks.length === 0) {
     rec.title = 'Unreadable'; showScanConfirm(rec); return;
   }
 
-  let discogsData = DISCOGS_TOKEN ? await discogsSearchFlow(artist, title, catalog, matrix, autoScanActive) : null;
+  let discogsData = DISCOGS_TOKEN ? await discogsSearchFlow(artist, title, catalog, matrix, tracks, autoState > 0) : null;
   
   if (discogsData && discogsData.found) {
     rec.artist = discogsData.artist || artist; rec.title = discogsData.title || title;
     rec.discogsUrl = discogsData.discogsUrl; rec.discogsId = discogsData.releaseId;
-    rec.discogsLowest = discogsData.lowestPrice; rec.discogsMedian = discogsData.medianPrice;
     rec.editionYear = discogsData.year; rec.editionCountry = discogsData.country;
-    rec.thumb = discogsData.thumb; rec.genre = discogsData.discogsGenre || data.genre || 'Electronic';
-    // Overwrite AI tracks with verified Discogs tracks if available
+    rec.thumb = discogsData.thumb; rec.genre = discogsData.discogsGenre || 'Electronic';
     if (discogsData.tracklist && discogsData.tracklist.length > 0) {
       rec.tracks = discogsData.tracklist;
     }
-    rec.price = discogsData.medianPrice ? parseFloat(discogsData.medianPrice).toFixed(2) : (discogsData.lowestPrice ? parseFloat(discogsData.lowestPrice).toFixed(2) : '0.00');
+    rec.price = discogsData.suggestedPrice;
     rec.status = 'PRICED';
   }
 
   showScanConfirm(rec);
 }
 
-// ==========================================
-// 7. MODALS & DISCOGS API
-// ==========================================
 function showScanConfirm(r) {
   const m = document.getElementById('scanConfirm');
   document.getElementById('scThumb').src = r.thumb || r.rawImage || '';
@@ -552,17 +534,14 @@ function showScanConfirm(r) {
   document.getElementById('scCountry').value = r.editionCountry || '';
   
   const bdg = document.getElementById('scBadges'); bdg.innerHTML = '';
-  if (r.confidence) bdg.innerHTML += `<span class="badge" style="border-color:var(--accent); color:var(--accent);">${Math.round(r.confidence*100)}% Match</span>`;
   if (r.status === 'REVIEW') bdg.innerHTML += `<span class="badge" style="border-color:var(--yellow); color:var(--yellow);">Needs Review</span>`;
   
-  // Create badges for multiple genres if they exist
   if (r.genre) {
-    r.genre.split(',').forEach(g => {
+    r.genre.split(',').slice(0, 4).forEach(g => {
       bdg.innerHTML += `<span class="badge">${g.trim()}</span>`;
     });
   }
 
-  // Display Tracklist Preview
   const tracksEl = document.getElementById('scTracks');
   if (r.tracks && r.tracks.length > 0) {
     tracksEl.innerHTML = r.tracks.join('<br>');
@@ -577,7 +556,7 @@ function showScanConfirm(r) {
     r.editionYear = document.getElementById('scYear').value;
     r.editionCountry = document.getElementById('scCountry').value;
     
-    if (r.status === 'PRICED') delete r.rawImage; // Free storage
+    if (r.status === 'PRICED') delete r.rawImage; 
     
     records.push(r); 
     m.classList.remove('show'); 
@@ -594,7 +573,6 @@ function showScanConfirm(r) {
   document.getElementById('scCancelBtn').onclick = () => { m.classList.remove('show'); };
 }
 
-// Fetch Full Tracklist from Release Endpoint
 async function fetchReleaseDetails(releaseId) {
   try {
     const url = `https://api.discogs.com/releases/${releaseId}?token=${DISCOGS_TOKEN}`;
@@ -602,24 +580,50 @@ async function fetchReleaseDetails(releaseId) {
     if (!resp.ok) return null;
     const data = await resp.json();
     
-    // Grab all styles/genres
-    const allGenres = [...(data.style || []), ...(data.genre || [])];
-    const uniqueGenres = [...new Set(allGenres)].join(', ');
+    let allGenres = [...(data.style || []), ...(data.genre || [])];
+    const uniqueGenres = [...new Set(allGenres)].slice(0, 4).join(', ');
     
-    // Format tracklist
     const tracklist = (data.tracklist || []).map(t => (t.position ? t.position + ' - ' : '') + t.title);
     
     return { tracklist, genres: uniqueGenres };
   } catch (e) { return null; }
 }
 
-async function discogsSearchFlow(artist, title, catalog, matrix, wasAuto, rawQuery = null) {
+// -----------------------------------------------------------
+// THE NEW "WATERFALL" DISCOGS SEARCH
+// -----------------------------------------------------------
+async function discogsSearchFlow(artist, title, catalog, matrix, tracks, wasAuto, rawQuery = null) {
   try {
-    let q = rawQuery ? encodeURIComponent(rawQuery) : encodeURIComponent([catalog, matrix, artist, title].filter(Boolean).join(' '));
-    const url = `https://api.discogs.com/database/search?q=${q}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
-    const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
-    if (!resp.ok) return null;
-    const res = (await resp.json()).results || [];
+    let res = [];
+    
+    if (rawQuery) {
+        const url = `https://api.discogs.com/database/search?q=${encodeURIComponent(rawQuery)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+        const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+        if (resp.ok) res = (await resp.json()).results || [];
+    } else {
+        // Attempt 1: Strict Artist + Release Title (Highest Accuracy)
+        if (artist && title && artist !== 'Unknown' && title !== 'Unknown') {
+            const url = `https://api.discogs.com/database/search?artist=${encodeURIComponent(artist)}&release_title=${encodeURIComponent(title)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+            const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+            if (resp.ok) res = (await resp.json()).results || [];
+        }
+        
+        // Attempt 2: Fallback to Catalog Number if Attempt 1 fails
+        if (res.length === 0 && catalog && catalog !== 'unknown') {
+            const url = `https://api.discogs.com/database/search?catno=${encodeURIComponent(catalog)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+            const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+            if (resp.ok) res = (await resp.json()).results || [];
+        }
+
+        // Attempt 3: The "Tracklist Hook" - Search by Artist and exactly 1 track
+        if (res.length === 0 && artist && artist !== 'Unknown' && tracks && tracks.length > 0) {
+            const trackName = tracks[0].replace(/^[A-Z0-9]+\.\s*/i, ''); // remove track numbers
+            const url = `https://api.discogs.com/database/search?artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(trackName)}&type=release&format=vinyl&per_page=6&token=${DISCOGS_TOKEN}`;
+            const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+            if (resp.ok) res = (await resp.json()).results || [];
+        }
+    }
+
     const vinyls = res.filter(r => r.format && r.format.some(f => f.toLowerCase().includes('vinyl')));
     if (!vinyls.length) return null;
 
@@ -629,24 +633,37 @@ async function discogsSearchFlow(artist, title, catalog, matrix, wasAuto, rawQue
       rel = await askUserForEdition(vinyls);
     }
 
-    // Now that we have the exact release, fetch the FULL tracklist and genres
     const releaseDetails = await fetchReleaseDetails(rel.id);
     const finalTracklist = releaseDetails ? releaseDetails.tracklist : [];
-    const finalGenres = releaseDetails ? releaseDetails.genres : (rel.style?.[0] || rel.genre?.[0] || 'Electronic');
+    
+    let fallbackGenres = [...(rel.style || []), ...(rel.genre || [])];
+    fallbackGenres = fallbackGenres.length ? [...new Set(fallbackGenres)].slice(0, 4).join(', ') : 'Electronic';
+    const finalGenres = releaseDetails ? releaseDetails.genres : fallbackGenres;
 
     const stResp = await fetch(CORS_PROXY + encodeURIComponent(`https://api.discogs.com/marketplace/stats/${rel.id}?curr_abbr=USD&token=${DISCOGS_TOKEN}`));
     const stData = stResp.ok ? await stResp.json() : {};
     
     const psResp = await fetch(CORS_PROXY + encodeURIComponent(`https://api.discogs.com/marketplace/price_suggestions/${rel.id}?token=${DISCOGS_TOKEN}`));
     const psData = psResp.ok ? await psResp.json() : {};
-    const median = psData['Very Good Plus (VG+)']?.value || null;
+    
+    let low = stData.lowest_price?.value || psData['Very Good (VG)']?.value || psData['Very Good Plus (VG+)']?.value;
+    let high = psData['Mint (M)']?.value || psData['Near Mint (NM or M-)']?.value || low;
+    
+    let priceStr = "0.00";
+    if (low && high && high > low) {
+        priceStr = `${low.toFixed(2)} - ${high.toFixed(2)}`;
+    } else if (low) {
+        priceStr = low.toFixed(2);
+    } else if (high) {
+        priceStr = high.toFixed(2);
+    }
 
     let fArt = artist, fTit = title;
     if (rel.title && rel.title.includes(' - ')) { fArt = rel.title.split(' - ')[0]; fTit = rel.title.split(' - ').slice(1).join(' - '); }
 
     return {
       found: true, releaseId: rel.id, thumb: rel.cover_image || rel.thumb || '', discogsUrl: `https://www.discogs.com${rel.uri || '/release/'+rel.id}`,
-      lowestPrice: stData.lowest_price?.value?.toFixed(2)||'', medianPrice: median?.toFixed(2)||'', numForSale: stData.num_for_sale||0,
+      suggestedPrice: priceStr,
       year: rel.year||'', country: rel.country||'', discogsGenre: finalGenres, tracklist: finalTracklist, artist: fArt, title: fTit
     };
   } catch(e) { return null; }
@@ -730,11 +747,20 @@ function renderLists() {
       
       let badgeHtml = '';
       if (r.genre) {
-        r.genre.split(',').slice(0,2).forEach(g => {
+        r.genre.split(',').slice(0, 4).forEach(g => {
           badgeHtml += `<span class="badge" style="color:${c}; border-color:${c};">${g.trim()}</span>`;
         });
       }
       
+      let priceHtml;
+      if (r.status === 'MANUAL') {
+         priceHtml = `<div class="scan-price" style="color:var(--accent)">$${r.price}</div><div style="font-size:9px;color:var(--muted);text-align:right">Manual Entry</div>`;
+      } else if (r.price && r.price !== "0.00") {
+         priceHtml = `<div class="scan-price" style="color:var(--accent)">$${r.price}</div><div style="font-size:9px;color:var(--muted);text-align:right">Suggested Range</div>`;
+      } else {
+         priceHtml = `<div class="scan-price needs">--</div>`;
+      }
+
       el.innerHTML = `
         <div class="bar" style="background:${c}"></div>
         <img src="${r.thumb||''}">
@@ -749,7 +775,7 @@ function renderLists() {
         </div>
         <div class="scan-right">
           <div class="icon-btn-group"><button class="icon-btn" onclick="editRecord('${r.id}')">\u270f\ufe0f</button><button class="icon-btn del" onclick="deleteRecord('${r.id}')">\u2715</button></div>
-          <div class="scan-price" style="color:var(--accent);">$${r.price}</div>
+          ${priceHtml}
         </div>
       `;
       inv.appendChild(el);
@@ -760,8 +786,13 @@ function renderLists() {
   document.getElementById('emptyStateInv').style.display = ic===0 ? 'flex' : 'none';
   document.getElementById('emptyStateRev').style.display = rc===0 ? 'flex' : 'none';
   
+  updateStats();
+}
+
+function updateStats() {
   const val = records.filter(r=>r.status!=='REVIEW').reduce((s,r)=>s+parseFloat(r.price||0),0);
-  document.getElementById('scanCount').textContent = ic; document.getElementById('totalValue').textContent = val.toFixed(2);
+  document.getElementById('scanCount').textContent = records.filter(r=>r.status!=='REVIEW').length;
+  document.getElementById('totalValue').textContent = val.toFixed(2);
 }
 
 async function editRecord(id) {
@@ -773,7 +804,7 @@ async function editRecord(id) {
   const dData = await discogsSearchFlow(null,null,null,null,null,false,q);
   if(dData && dData.found) {
     r.artist = dData.artist; r.title = dData.title; r.discogsUrl = dData.discogsUrl;
-    r.price = dData.medianPrice || dData.lowestPrice || "0.00"; r.thumb = dData.thumb;
+    r.price = dData.suggestedPrice || "0.00"; r.thumb = dData.thumb;
     r.editionYear = dData.year; r.editionCountry = dData.country; r.genre = dData.discogsGenre || r.genre;
     if (dData.tracklist && dData.tracklist.length > 0) r.tracks = dData.tracklist;
     r.status = 'PRICED';
@@ -786,11 +817,11 @@ async function editRecord(id) {
 function manualResolve(id) {
   const r = records.find(x => x.id === id); if(!r) return;
   const def = [r.artist!=='Unknown'?r.artist:'', r.title!=='Unreadable'?r.title:''].filter(Boolean).join(' - ');
-  const q = prompt("Manual Add\nFormat: Artist - Title | Price", def + " | 5.00");
+  const q = prompt("Manual Add\nFormat: Artist - Title | Price Range", def + " | 5.00 - 15.00");
   if(!q) return;
   const p = q.split('|');
   r.artist = p[0].split('-')[0]?.trim()||p[0]; r.title = p[0].split('-')[1]?.trim()||'';
-  r.price = p[1] ? parseFloat(p[1]).toFixed(2) : "5.00"; r.status = 'MANUAL';
+  r.price = p[1] ? p[1].trim() : "5.00"; r.status = 'MANUAL';
   delete r.rawImage; 
   
   syncToGoogleSheets(r);
@@ -809,8 +840,7 @@ function clearAll() {
 function downloadCSV() {
   const uniq = records.filter(r => r.status!=='REVIEW'); if(!uniq.length) return;
   
-  // Export using the E-Commerce Header format
-  const rows = [['Variant SKU','Vendor','Title','Variant Price','Tags','Body HTML','Image Src','Year','Country']];
+  const rows = [['Variant SKU','Vendor','Title','Variant Price','Tags','Body HTML','Image Src','Matrix','Year','Country']];
   
   uniq.forEach(r => {
     const formattedTracks = (r.tracks && r.tracks.length > 0) ? r.tracks.join('<br>') : "";
@@ -820,10 +850,11 @@ function downloadCSV() {
       `"${sku}"`, 
       `"${r.artist}"`, 
       `"${r.title}"`, 
-      r.price, 
+      `"${r.price}"`, 
       `"${r.genre}"`, 
       `"${formattedTracks}"`, 
       `"${r.thumb || ''}"`,
+      `"${r.matrix || ''}"`,
       r.editionYear, 
       r.editionCountry
     ]);
