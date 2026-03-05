@@ -28,16 +28,18 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);f
 .cam-area{position:relative;height:32dvh;min-height:200px;background:#000;flex-shrink:0;overflow:hidden;border-bottom:2px solid var(--accent)}
 video{width:100%;height:100%;object-fit:cover}
 .cam-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:14px;pointer-events:none}
-.cam-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;background:rgba(0,0,0,.9);padding:7px 14px;border-radius:20px;backdrop-filter:blur(8px)}
+.cam-label{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;background:rgba(0,0,0,.9);padding:7px 14px;border-radius:20px;backdrop-filter:blur(8px)}
 .cam-label.scanning{color:var(--red);animation:pulse .8s infinite}
 .cam-label.match{color:var(--green)}
+.cam-label.barcode{color:var(--yellow)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* CONTROLS */
 .controls-bar{display:flex;align-items:center;justify-content:space-around;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
-.scan-btn{width:64px;height:64px;border-radius:50%;border:3px solid var(--accent);background:rgba(0,229,212,.08);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--accent);transition:transform .1s}
+.scan-btn{width:64px;height:64px;border-radius:50%;border:3px solid var(--accent);background:rgba(0,229,212,.08);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--accent);transition:transform .1s;position:relative}
 .scan-btn:active{transform:scale(.88)}
 .scan-btn.active{border-color:var(--red);color:var(--red);animation:pulse .8s infinite}
+.scan-mode-tag{position:absolute;bottom:-8px;font-family:'JetBrains Mono',monospace;font-size:8px;background:var(--panel);color:var(--muted);padding:1px 5px;border-radius:4px;border:1px solid var(--border);white-space:nowrap}
 .side-btn{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:10px 12px;border-radius:10px;min-width:82px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
 .side-btn span{font-size:16px}
 .side-btn.danger{background:transparent;color:var(--red);border-color:var(--red)}
@@ -67,12 +69,23 @@ video{width:100%;height:100%;object-fit:cover}
 .tag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 7px;border-radius:4px;background:var(--panel);border:1px solid var(--border);color:var(--accent)}
 .tag.warn{color:var(--yellow);border-color:var(--yellow)}
 .tag.ok{color:var(--green);border-color:var(--green)}
+.tag.cond{color:#fff;border-color:var(--muted2);background:var(--muted2)}
 .rec-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;padding:10px 12px 10px 4px;flex-shrink:0}
 .rec-price{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer}
+.rec-qty{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-align:right}
 .rec-del{background:transparent;border:none;color:var(--muted2);font-size:14px;cursor:pointer;padding:2px}
-.rev-actions{display:flex;gap:6px;padding:0 12px 11px 16px;background:var(--card)}
+.rev-actions{display:flex;gap:6px;padding:0 12px 11px 16px;background:var(--card);flex-wrap:wrap}
 .act-btn{font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer}
 .act-btn.retry{color:var(--accent);border-color:var(--accent)}
+
+/* CONDITION SELECTOR */
+.cond-row{display:flex;gap:6px;flex-wrap:wrap}
+.cond-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all .15s}
+.cond-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.cond-btn.active.nm{background:#22c55e;border-color:#22c55e}
+.cond-btn.active.vgp{background:var(--accent);border-color:var(--accent)}
+.cond-btn.active.vg{background:var(--yellow);border-color:var(--yellow)}
+.cond-btn.active.g{background:var(--red);border-color:var(--red)}
 
 /* MODALS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;display:none;padding:16px;align-items:flex-end;justify-content:center;backdrop-filter:blur(12px)}
@@ -81,30 +94,37 @@ video{width:100%;height:100%;object-fit:cover}
 .sheet-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:2px}
 .inp{width:100%;padding:13px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);outline:none;font-size:14px;font-family:'DM Sans',sans-serif}
 .inp:focus{border-color:var(--accent)}
+.inp-row{display:flex;gap:8px}
+.inp-row .inp{margin:0}
 .btn-p{width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#000;font-size:15px;font-weight:700;cursor:pointer}
 .btn-s{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;cursor:pointer}
 .btn-d{width:100%;padding:11px;border-radius:12px;border:1px solid var(--red);background:transparent;color:var(--red);font-size:13px;cursor:pointer}
-.label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:-4px}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:-4px}
+.divider{height:1px;background:var(--border);margin:2px 0}
 
 /* CONFIRM MODAL SPECIFICS */
 .cf-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .cf-price-big{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--green);text-align:right;white-space:nowrap}
 .cf-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);margin-top:2px}
-.tracklist{font-size:11px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--border);max-height:90px;overflow-y:auto;line-height:1.7;font-family:'JetBrains Mono',monospace}
+.tracklist{font-size:11px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--border);max-height:80px;overflow-y:auto;line-height:1.7;font-family:'JetBrains Mono',monospace}
 
 /* MATCH PICKER */
 .match-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto}
 .match-opt{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;width:100%}
-.match-opt:hover,.match-opt.sel{border-color:var(--accent);background:rgba(0,229,212,.06)}
+.match-opt.sel{border-color:var(--accent);background:rgba(0,229,212,.06)}
 .match-opt img{width:44px;height:44px;border-radius:6px;object-fit:cover;background:#000;flex-shrink:0}
 .match-opt-info{flex:1;overflow:hidden}
 .match-opt-title{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .match-opt-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px}
 .match-score{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--panel);color:var(--accent);flex-shrink:0}
+.score-bar{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:3px}
+.score-fill{height:100%;border-radius:2px;background:var(--accent)}
 
-/* SCORE BAR */
-.score-bar{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:2px}
-.score-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s}
+/* SETUP VALIDATION */
+.key-status{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 8px;border-radius:6px;display:none}
+.key-status.ok{display:block;color:var(--green);background:rgba(34,197,94,.1);border:1px solid var(--green)}
+.key-status.err{display:block;color:var(--red);background:rgba(255,77,109,.1);border:1px solid var(--red)}
+.key-status.busy{display:block;color:var(--yellow);background:rgba(245,197,24,.1);border:1px solid var(--yellow);animation:pulse .8s infinite}
 
 /* STATUS */
 .status-bar{padding:6px 14px;background:var(--bg);border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-shrink:0}
@@ -121,14 +141,22 @@ canvas{display:none}
 <div class="overlay" id="moSetup">
   <div class="sheet" style="border-radius:20px">
     <div class="sheet-title">⚙ Scanner Setup</div>
-    <div class="label">GEMINI API KEY</div>
+
+    <div class="field-label">GEMINI API KEY</div>
     <input class="inp" id="cfgGemini" type="password" placeholder="AIzaSy…"/>
-    <div class="label">DISCOGS PERSONAL TOKEN</div>
+    <div class="key-status" id="geminiStatus"></div>
+
+    <div class="field-label">DISCOGS PERSONAL TOKEN</div>
     <input class="inp" id="cfgDiscogs" type="password" placeholder="your discogs token"/>
-    <div class="label">GOOGLE SHEETS WEBHOOK (optional)</div>
+    <div class="key-status" id="discogsStatus"></div>
+
+    <div class="field-label">GOOGLE SHEETS WEBHOOK (optional)</div>
     <input class="inp" id="cfgSheets" type="url" placeholder="https://script.google.com/…"/>
-    <button class="btn-p" onclick="saveSettings()">Save & Launch</button>
-    <div style="display:flex;gap:8px;margin-top:4px">
+
+    <button class="btn-p" id="validateBtn" onclick="validateAndSave()">Validate & Save</button>
+
+    <div class="divider"></div>
+    <div style="display:flex;gap:8px">
       <button class="btn-s" style="font-size:12px" onclick="backupJSON()">↓ Backup JSON</button>
       <button class="btn-s" style="font-size:12px" onclick="document.getElementById('restoreFile').click()">↑ Restore JSON</button>
     </div>
@@ -140,7 +168,6 @@ canvas{display:none}
 <div class="overlay" id="moConfirm">
   <div class="sheet">
 
-    <!-- AI-extracted info + price -->
     <div class="cf-head">
       <div style="flex:1;overflow:hidden">
         <div id="cfArtist" style="font-size:17px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
@@ -149,21 +176,52 @@ canvas{display:none}
       </div>
       <div>
         <div class="cf-price-big" id="cfPrice"></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-align:right;margin-top:2px" id="cfPriceLbl"></div>
+        <div id="cfPriceLbl" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-align:right;margin-top:2px"></div>
       </div>
     </div>
 
-    <!-- Tracklist -->
     <div class="tracklist" id="cfTracks"></div>
-
-    <!-- Price override -->
-    <div class="label">SET PRICE (override)</div>
-    <input class="inp" id="cfPriceInput" type="number" step="0.01" min="0" placeholder="e.g. 12.00" style="font-family:'JetBrains Mono',monospace"/>
 
     <!-- Match picker -->
     <div id="cfMatchSection" style="display:none">
-      <div class="label" style="margin-bottom:6px">SELECT DISCOGS MATCH</div>
+      <div class="field-label" style="margin-bottom:6px">SELECT DISCOGS MATCH</div>
       <div class="match-list" id="cfMatchList"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Vinyl condition -->
+    <div class="field-label">VINYL CONDITION</div>
+    <div class="cond-row" id="vinylCond">
+      <button class="cond-btn nm"  data-g="vinyl" onclick="setCond('vinyl','M')">M</button>
+      <button class="cond-btn nm"  data-g="vinyl" onclick="setCond('vinyl','NM')">NM</button>
+      <button class="cond-btn vgp active" data-g="vinyl" onclick="setCond('vinyl','VG+')">VG+</button>
+      <button class="cond-btn vg"  data-g="vinyl" onclick="setCond('vinyl','VG')">VG</button>
+      <button class="cond-btn g"   data-g="vinyl" onclick="setCond('vinyl','G+')">G+</button>
+      <button class="cond-btn g"   data-g="vinyl" onclick="setCond('vinyl','G')">G</button>
+    </div>
+
+    <!-- Sleeve condition -->
+    <div class="field-label">SLEEVE CONDITION</div>
+    <div class="cond-row" id="sleeveCond">
+      <button class="cond-btn nm"  data-g="sleeve" onclick="setCond('sleeve','M')">M</button>
+      <button class="cond-btn nm"  data-g="sleeve" onclick="setCond('sleeve','NM')">NM</button>
+      <button class="cond-btn vgp active" data-g="sleeve" onclick="setCond('sleeve','VG+')">VG+</button>
+      <button class="cond-btn vg"  data-g="sleeve" onclick="setCond('sleeve','VG')">VG</button>
+      <button class="cond-btn g"   data-g="sleeve" onclick="setCond('sleeve','G+')">G+</button>
+      <button class="cond-btn g"   data-g="sleeve" onclick="setCond('sleeve','G')">G</button>
+    </div>
+
+    <!-- Price override + quantity -->
+    <div class="inp-row">
+      <div style="flex:1">
+        <div class="field-label">PRICE OVERRIDE (USD)</div>
+        <input class="inp" id="cfPriceInput" type="number" step="0.01" min="0" placeholder="e.g. 12.00" style="font-family:'JetBrains Mono',monospace;margin-top:4px"/>
+      </div>
+      <div style="width:80px">
+        <div class="field-label">QTY</div>
+        <input class="inp" id="cfQty" type="number" min="1" value="1" style="font-family:'JetBrains Mono',monospace;margin-top:4px;text-align:center"/>
+      </div>
     </div>
 
     <button class="btn-p" id="cfAddBtn">✓ Add to Inventory</button>
@@ -176,11 +234,40 @@ canvas{display:none}
 <div class="overlay" id="moEdit">
   <div class="sheet">
     <div class="sheet-title">Edit Record</div>
+    <div class="field-label">ARTIST</div>
     <input class="inp" id="editArtist" placeholder="Artist"/>
+    <div class="field-label">TITLE</div>
     <input class="inp" id="editTitle"  placeholder="Title"/>
-    <input class="inp" id="editSku"    placeholder="Catalog No."/>
-    <input class="inp" id="editGenre"  placeholder="Genres (comma separated)"/>
-    <input class="inp" id="editPrice"  type="number" step="0.01" placeholder="Price (USD)"/>
+    <div class="field-label">CATALOG NO.</div>
+    <input class="inp" id="editSku"    placeholder="e.g. WARP12-001"/>
+    <div class="field-label">GENRES</div>
+    <input class="inp" id="editGenre"  placeholder="Techno, Acid, Ambient"/>
+    <div class="inp-row">
+      <div style="flex:1">
+        <div class="field-label">PRICE (USD)</div>
+        <input class="inp" id="editPrice" type="number" step="0.01" style="margin-top:4px"/>
+      </div>
+      <div style="width:80px">
+        <div class="field-label">QTY</div>
+        <input class="inp" id="editQty" type="number" min="1" style="margin-top:4px;text-align:center"/>
+      </div>
+    </div>
+    <div class="field-label">VINYL CONDITION</div>
+    <div class="cond-row" id="editVinylCond">
+      <button class="cond-btn nm"  onclick="setEditCond('vinyl','M')">M</button>
+      <button class="cond-btn nm"  onclick="setEditCond('vinyl','NM')">NM</button>
+      <button class="cond-btn vgp" onclick="setEditCond('vinyl','VG+')">VG+</button>
+      <button class="cond-btn vg"  onclick="setEditCond('vinyl','VG')">VG</button>
+      <button class="cond-btn g"   onclick="setEditCond('vinyl','G+')">G+</button>
+    </div>
+    <div class="field-label">SLEEVE CONDITION</div>
+    <div class="cond-row" id="editSleeveCond">
+      <button class="cond-btn nm"  onclick="setEditCond('sleeve','M')">M</button>
+      <button class="cond-btn nm"  onclick="setEditCond('sleeve','NM')">NM</button>
+      <button class="cond-btn vgp" onclick="setEditCond('sleeve','VG+')">VG+</button>
+      <button class="cond-btn vg"  onclick="setEditCond('sleeve','VG')">VG</button>
+      <button class="cond-btn g"   onclick="setEditCond('sleeve','G+')">G+</button>
+    </div>
     <button class="btn-p" onclick="saveEdit()">Save Changes</button>
     <button class="btn-d" onclick="closeModal('moEdit')">Cancel</button>
     <input type="hidden" id="editId"/>
@@ -205,14 +292,20 @@ canvas{display:none}
   <video id="video" autoplay muted playsinline></video>
   <canvas id="snapCanvas"></canvas>
   <div class="cam-overlay">
-    <div class="cam-label" id="camLabel">Aim at tracklist or centre label</div>
+    <div class="cam-label" id="camLabel">
+      <span id="stepIcon">📷</span>
+      <span id="stepText">Aim at tracklist or centre label</span>
+    </div>
   </div>
 </div>
 
 <!-- ── CONTROLS ────────────────────────────────────────── -->
 <div class="controls-bar">
   <button class="side-btn csv" onclick="exportCSV()"><span>↓</span>CSV</button>
-  <button class="scan-btn" id="scanBtn" onclick="doScan()">⏺</button>
+  <button class="scan-btn" id="scanBtn" onclick="doScan()">
+    ⏺
+    <span class="scan-mode-tag" id="scanModeTag">OCR</span>
+  </button>
   <button class="side-btn danger" onclick="clearAll()"><span>✕</span>Clear</button>
 </div>
 
@@ -248,6 +341,14 @@ const PROXIES = [
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
 ];
 
+// Discogs rate-limit: max 1 req/sec
+let _lastDiscogsCall = 0;
+async function discogsThrottle() {
+  const gap = Date.now() - _lastDiscogsCall;
+  if (gap < 1050) await sleep(1050 - gap);
+  _lastDiscogsCall = Date.now();
+}
+
 const GENRE_COLOUR = {
   techno:'#6e52ff',house:'#00e5d4',trance:'#f5c518',ambient:'#22c55e',
   'drum and bass':'#ff4d6d','d&b':'#ff4d6d',jungle:'#f97316',electro:'#e879f9',
@@ -260,8 +361,27 @@ function genreColour(g=''){
   return '#3a3a44';
 }
 
-// ── AI PROMPT ────────────────────────────────────────────────────────────────
-// responseMimeType forces JSON mode — no markdown fences possible
+// ── SCAN STEPS ───────────────────────────────────────────────────────────────
+const STEPS = {
+  idle    : { icon:'📷', text:'Aim at tracklist or centre label', cls:'' },
+  capture : { icon:'📸', text:'Capturing frame…',                cls:'scanning' },
+  barcode : { icon:'🔍', text:'Reading barcode…',                cls:'barcode' },
+  ai      : { icon:'🧠', text:'AI reading label…',               cls:'scanning' },
+  discogs : { icon:'💿', text:'Searching Discogs…',              cls:'scanning' },
+  price   : { icon:'💰', text:'Fetching market price…',          cls:'scanning' },
+  match   : { icon:'✓',  text:'Match found — confirm',           cls:'match' },
+  nomatch : { icon:'⚠',  text:'No match — review needed',        cls:'' },
+  fail    : { icon:'✕',  text:'Scan failed — retry',             cls:'scanning' }
+};
+function setStep(key) {
+  const s = STEPS[key] || STEPS.idle;
+  document.getElementById('stepIcon').textContent = s.icon;
+  document.getElementById('stepText').textContent = s.text;
+  const el = document.getElementById('camLabel');
+  el.className = 'cam-label' + (s.cls ? ` ${s.cls}` : '');
+}
+
+// ── AI PROMPT ─────────────────────────────────────────────────────────────────
 const PROMPT = `You are an expert vinyl archivist. Examine this photo of a record sleeve, centre label, or back cover.
 Read ALL visible text carefully. Deduce the exact commercial release.
 Return ONLY a raw JSON object with these exact keys:
@@ -274,19 +394,20 @@ Return ONLY a raw JSON object with these exact keys:
   "genres": ["Primary Genre", "Secondary Genre"]
 }
 Rules:
-- Preserve the original capitalisation of artist and title.
+- Preserve original capitalisation.
 - For compilations set artist to "Various Artists".
-- Tracks must include side labels (e.g. "Side A - 01" or "A1", "B2").
-- genres should be specific dance music subgenres where possible (e.g. Techno, Deep House, Acid, Jungle, Ambient Techno).
-- If this is a 12" single with only 2-3 tracks, set that in tracks accordingly.`;
+- Include side labels in tracks (e.g. "Side A - 01" or "A1", "B2").
+- Use specific dance music subgenres where possible (Techno, Deep House, Acid, Jungle, Ambient Techno).
+- If 12" single with 2-3 tracks, list them all.`;
 
-// ── STATE ────────────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────────
 let API_KEY='', DISCOGS_TOKEN='', SHEETS_URL='';
 let records=[], scanning=false, currentTab='inv';
 let videoEl, canvasEl, ctxSnap;
 let pendingAiData=null, pendingMatches=[], selectedMatchIdx=0;
+let barcodeDetector=null;
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 (async function init(){
   API_KEY       = localStorage.getItem('vg')||'';
   DISCOGS_TOKEN = localStorage.getItem('vd')||'';
@@ -297,50 +418,68 @@ let pendingAiData=null, pendingMatches=[], selectedMatchIdx=0;
   canvasEl = document.getElementById('snapCanvas');
   ctxSnap  = canvasEl.getContext('2d');
 
+  // Barcode API detection
+  if('BarcodeDetector' in window) {
+    try {
+      barcodeDetector = new BarcodeDetector({ formats:['ean_13','ean_8','upc_a','upc_e','code_128'] });
+      document.getElementById('scanModeTag').textContent = 'BARCODE';
+      document.getElementById('scanModeTag').style.color = 'var(--yellow)';
+      setStatus('BarcodeDetector available — will try barcode first', 'ok');
+    } catch(_) { barcodeDetector=null; }
+  }
+
+  // Video cleanup on unload
+  window.addEventListener('beforeunload', () => {
+    if(videoEl?.srcObject) videoEl.srcObject.getTracks().forEach(t=>t.stop());
+  });
+
   if(!API_KEY){ openModal('moSetup'); return; }
-  try{
+  await startCamera();
+  renderAll();
+})();
+
+async function startCamera() {
+  try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video:{ facingMode:'environment', width:{ideal:1920}, height:{ideal:1080} }
     });
     videoEl.srcObject = stream;
-  }catch(e){ setStatus('Camera error — check permissions','err'); }
-  renderAll();
-})();
+  } catch(e) {
+    setStatus('Camera error — check permissions','err');
+  }
+}
 
-// ── GEMINI ───────────────────────────────────────────────────────────────────
+// ── GEMINI ────────────────────────────────────────────────────────────────────
 async function callGemini(b64, retries=3){
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
-  const body = {
-    contents:[{parts:[
-      {text:PROMPT},
-      {inlineData:{mimeType:'image/jpeg',data:b64}}
-    ]}],
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
+  const body={
+    contents:[{parts:[{text:PROMPT},{inlineData:{mimeType:'image/jpeg',data:b64}}]}],
     generationConfig:{ temperature:0.1, responseMimeType:'application/json' }
   };
-  const resp = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(resp.status===429){
     if(retries<=0) throw new Error('Rate limited');
     setStatus(`Rate limited — retrying in 6s (${retries} left)`,'busy');
     await sleep(6000);
-    return callGemini(b64, retries-1);
+    return callGemini(b64,retries-1);
   }
   if(!resp.ok) throw new Error(`Gemini HTTP ${resp.status}`);
-  const json = await resp.json();
-  const raw  = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  const clean = raw.replace(/```json|```/gi,'').trim();
+  const json=await resp.json();
+  const raw=(json?.candidates?.[0]?.content?.parts?.[0]?.text||'').replace(/```json|```/gi,'').trim();
   let parsed;
-  try{ parsed = JSON.parse(clean); }
-  catch(e){ throw new Error(`AI JSON parse failed: ${clean.slice(0,80)}`); }
-  if(!parsed?.artist || !parsed?.title) throw new Error('AI response missing artist/title');
+  try{ parsed=JSON.parse(raw); }
+  catch(e){ throw new Error(`AI JSON parse failed: ${raw.slice(0,80)}`); }
+  if(!parsed?.artist||!parsed?.title) throw new Error('AI response missing artist/title');
   return parsed;
 }
 
 // ── DISCOGS ───────────────────────────────────────────────────────────────────
 async function discogsGet(endpoint){
-  const full = `https://api.discogs.com${endpoint}`;
+  await discogsThrottle();
+  const full=`https://api.discogs.com${endpoint}`;
   for(const proxy of PROXIES){
     try{
-      const r = await fetch(proxy(full));
+      const r=await fetch(proxy(full));
       if(r.ok) return await r.json();
     }catch(_){}
   }
@@ -349,187 +488,216 @@ async function discogsGet(endpoint){
 
 function isVinyl(fmt){
   if(!Array.isArray(fmt)||!fmt.length) return true;
-  const s = fmt.join(' ').toLowerCase();
+  const s=fmt.join(' ').toLowerCase();
   if(['vinyl','12"','10"','7"','lp','ep','single','white label','test pressing'].some(v=>s.includes(v))) return true;
   if(['cd','file','mp3','flac','cassette','dvd','dat','blu-ray'].some(b=>s.includes(b))) return false;
   return true;
 }
 
-// SCORING — higher is better match
-function scoreMatch(r, data){
-  let sc = 0;
-  const rt = (r.title||'').toLowerCase();
-  const ra = (r.artist||'').toLowerCase();
-  const dt = data.title.toLowerCase();
-  const da = data.artist.toLowerCase();
-  if(rt.includes(dt)||dt.includes(rt)) sc += 4;
-  if(ra.includes(da)||da.includes(ra)) sc += 4;
-  if(data.catalog && r.catno){
-    const rc = r.catno.toLowerCase().replace(/\s/g,'');
-    const dc = data.catalog.toLowerCase().replace(/\s/g,'');
-    if(rc===dc) sc += 6;
-    else if(rc.includes(dc)||dc.includes(rc)) sc += 3;
+function scoreMatch(r,data){
+  let sc=0;
+  const rt=(r.title||'').toLowerCase(), ra=(r.artist||'').toLowerCase();
+  const dt=data.title.toLowerCase(), da=data.artist.toLowerCase();
+  if(rt.includes(dt)||dt.includes(rt)) sc+=4;
+  if(ra.includes(da)||da.includes(ra)) sc+=4;
+  if(data.catalog&&r.catno){
+    const rc=r.catno.toLowerCase().replace(/\s/g,''), dc=data.catalog.toLowerCase().replace(/\s/g,'');
+    if(rc===dc) sc+=6; else if(rc.includes(dc)||dc.includes(rc)) sc+=3;
   }
-  if(r.year && data.year && r.year===data.year) sc += 2;
-  // Prefer specific releases over masters
-  if(r.type==='release') sc += 1;
+  if(r.year&&data.year&&r.year===data.year) sc+=2;
+  if(r.type==='release') sc+=1;
   return sc;
 }
 
 async function discogsSearch(data){
-  const run = async q => {
+  const run=async q=>{
     try{
-      const clean = q.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
-      const d = await discogsGet(
-        `/database/search?q=${encodeURIComponent(clean)}&type=release&per_page=20&token=${DISCOGS_TOKEN}`
-      );
+      const clean=q.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+      const d=await discogsGet(`/database/search?q=${encodeURIComponent(clean)}&type=release&per_page=20&token=${DISCOGS_TOKEN}`);
       return d.results||[];
     }catch(_){ return []; }
   };
-
-  let results = [];
-
-  // 1. Artist + Title
-  results = await run(`${data.artist} ${data.title}`);
-  // 2. Title only (for compilations / artist name variation)
+  let results=[];
+  results=await run(`${data.artist} ${data.title}`);
   if(results.length<3) results=[...results,...(await run(data.title))];
-  // 3. Catalog number alone — most precise
   if(data.catalog) results=[...results,...(await run(data.catalog))];
-  // 4. First track as hook
-  if(results.length<2 && data.tracks?.length){
-    const t = data.tracks[0].replace(/^(side [ab]|[ab]\d+|a\d+|b\d+)[:\s\-–]*/i,'').replace(/^\d+[\.\s\-–]+/,'').trim();
+  if(results.length<2&&data.tracks?.length){
+    const t=data.tracks[0].replace(/^(side [ab]|[ab]\d+|a\d+|b\d+)[:\s\-–]*/i,'').replace(/^\d+[\.\s\-–]+/,'').trim();
     if(t.length>4) results=[...results,...(await run(`${data.artist} ${t}`))];
   }
-
-  // Deduplicate by id, filter to vinyl, score & sort
-  const seen = new Set();
-  const unique = results.filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return isVinyl(r.format); });
+  const seen=new Set();
+  const unique=results.filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return isVinyl(r.format); });
   unique.sort((a,b)=>scoreMatch(b,data)-scoreMatch(a,data));
-  return unique.slice(0,5); // top 5
+  return unique.slice(0,5);
 }
 
 async function getPrice(releaseId){
+  if(!releaseId) return null;
   try{
-    const d = await discogsGet(`/marketplace/stats/${releaseId}?token=${DISCOGS_TOKEN}&curr_abbr=USD`);
-    if(d?.lowest_price?.value)  return {price:d.lowest_price.value.toFixed(2),  label:'lowest'};
-    if(d?.median_price?.value)  return {price:d.median_price.value.toFixed(2),  label:'median'};
+    const d=await discogsGet(`/marketplace/stats/${releaseId}?token=${DISCOGS_TOKEN}&curr_abbr=USD`);
+    if(d?.lowest_price?.value)  return { price:d.lowest_price.value.toFixed(2), label:'lowest listed' };
+    if(d?.median_price?.value)  return { price:d.median_price.value.toFixed(2),  label:'median sold' };
   }catch(_){}
   return null;
+}
+
+// ── BARCODE SEARCH ────────────────────────────────────────────────────────────
+async function searchByBarcode(barcode){
+  try{
+    const d=await discogsGet(`/database/search?barcode=${encodeURIComponent(barcode)}&type=release&per_page=10&token=${DISCOGS_TOKEN}`);
+    const results=(d.results||[]).filter(r=>isVinyl(r.format));
+    if(!results.length) return null;
+    results.sort((a,b)=>scoreMatch(b,{artist:'',title:'',catalog:''})-scoreMatch(a,{artist:'',title:'',catalog:''}));
+    return results[0];
+  }catch(_){ return null; }
 }
 
 // ── SCAN FLOW ─────────────────────────────────────────────────────────────────
 async function doScan(){
   if(scanning) return;
-  if(!videoEl.videoWidth){ setStatus('Camera not ready','err'); return; }
+  if(!videoEl.videoWidth){ setStatus('Camera not ready — wait a moment','err'); return; }
   scanning=true;
   document.getElementById('scanBtn').classList.add('active');
-  setStatus('Reading with Gemini…','busy');
-  setCamLabel('READING…',true);
 
-  canvasEl.width  = videoEl.videoWidth;
-  canvasEl.height = videoEl.videoHeight;
+  canvasEl.width=videoEl.videoWidth;
+  canvasEl.height=videoEl.videoHeight;
   ctxSnap.drawImage(videoEl,0,0);
-  const b64 = canvasEl.toDataURL('image/jpeg',0.85).split(',')[1];
 
   try{
-    const aiData = await callGemini(b64);
-    setStatus('Searching Discogs…','busy');
-    setCamLabel('SEARCHING DISCOGS…',true);
+    // ── STAGE 1: Try barcode first (instant if found) ──
+    if(barcodeDetector){
+      setStep('barcode'); setStatus('Trying barcode detector…','busy');
+      const barcodes = await barcodeDetector.detect(canvasEl);
+      if(barcodes.length){
+        const code = barcodes[0].rawValue;
+        setStatus(`Barcode: ${code} — searching Discogs…`,'busy');
+        setStep('discogs');
+        const match = await searchByBarcode(code);
+        if(match){
+          // Synthesise aiData-like object from Discogs result
+          const aiData={
+            artist: match.title?.includes(' - ') ? match.title.split(' - ')[0] : (match.artist||'Unknown'),
+            title:  match.title?.includes(' - ') ? match.title.split(' - ').slice(1).join(' - ') : match.title,
+            catalog: match.catno||'',
+            year:   match.year||'',
+            tracks: [],
+            genres: [...(match.style||[]),...(match.genre||[])]
+          };
+          setStep('price'); setStatus('Fetching market price…','busy');
+          await openConfirm(aiData,[match]);
+          scanning=false;
+          document.getElementById('scanBtn').classList.remove('active');
+          return;
+        }
+        setStatus('Barcode not in Discogs — falling back to AI OCR…','busy');
+      }
+    }
+
+    // ── STAGE 2: AI OCR ──
+    setStep('ai'); setStatus('AI reading tracklist…','busy');
+    const b64=canvasEl.toDataURL('image/jpeg',0.85).split(',')[1];
+    const aiData=await callGemini(b64);
+
+    setStep('discogs'); setStatus('Searching Discogs…','busy');
     await openConfirm(aiData);
+
   }catch(e){
     console.error(e);
-    setStatus(`Scan failed: ${e.message}`,'err');
-    setCamLabel('SCAN FAILED — RETRY',false);
-    setTimeout(()=>{ setCamLabel('Aim at tracklist or centre label',false); setStatus('Ready','ok'); },3000);
+    setStep('fail'); setStatus(`Scan failed: ${e.message}`,'err');
+    setTimeout(()=>{ setStep('idle'); setStatus('Ready','ok'); },3000);
   }
   scanning=false;
   document.getElementById('scanBtn').classList.remove('active');
 }
 
+// ── CONFIRM MODAL ─────────────────────────────────────────────────────────────
 async function openConfirm(aiData, forceMatches=null){
-  pendingAiData = aiData;
-  const matches = forceMatches !== null ? forceMatches : await discogsSearch(aiData);
-  pendingMatches = matches;
-  selectedMatchIdx = 0;
+  pendingAiData=aiData;
+  const matches=forceMatches!==null ? forceMatches : await discogsSearch(aiData);
+  pendingMatches=matches; selectedMatchIdx=0;
 
-  // Price fetch for top match
-  let priceData = null;
-  if(matches[0]) priceData = await getPrice(matches[0].id);
+  setStep('price'); setStatus('Fetching market price…','busy');
+  let priceData=null;
+  if(matches[0]) priceData=await getPrice(matches[0].id);
 
-  // Populate fixed info
-  document.getElementById('cfArtist').textContent = aiData.artist;
-  document.getElementById('cfTitle').textContent  = aiData.title;
-  document.getElementById('cfTracks').innerHTML   = (aiData.tracks||[]).map(t=>`• ${t}`).join('<br>');
-  document.getElementById('cfPriceInput').value   = priceData?.price || '';
+  // Reset condition to VG+
+  setCond('vinyl','VG+'); setCond('sleeve','VG+');
+  document.getElementById('cfPriceInput').value='';
+  document.getElementById('cfQty').value='1';
 
-  const match = matches[0]||null;
-  document.getElementById('cfMeta').textContent = match
+  // Populate
+  document.getElementById('cfArtist').textContent=aiData.artist;
+  document.getElementById('cfTitle').textContent=aiData.title;
+  document.getElementById('cfTracks').innerHTML=(aiData.tracks||[]).map(t=>`• ${t}`).join('<br>');
+  if(priceData) document.getElementById('cfPriceInput').value=priceData.price;
+
+  const match=matches[0]||null;
+  document.getElementById('cfMeta').textContent=match
     ? `${match.catno||aiData.catalog||'—'}  •  ${match.year||aiData.year||''}  •  ✓ MATCH`
     : `${aiData.catalog||'—'}  •  ${aiData.year||''}  •  NO MATCH`;
-  document.getElementById('cfPrice').textContent    = priceData ? `$${priceData.price}` : (match?'$—':'');
-  document.getElementById('cfPriceLbl').textContent = priceData?.label ? `${priceData.label} price` : '';
+  document.getElementById('cfPrice').textContent=priceData?`$${priceData.price}`:(match?'$—':'');
+  document.getElementById('cfPriceLbl').textContent=priceData?.label||'';
 
   // Match picker
-  const section = document.getElementById('cfMatchSection');
-  const list    = document.getElementById('cfMatchList');
-  if(matches.length>0){
+  const section=document.getElementById('cfMatchSection');
+  const list=document.getElementById('cfMatchList');
+  if(matches.length){
     section.style.display='';
-    list.innerHTML = matches.map((r,i)=>{
-      const sc = scoreMatch(r,aiData);
-      const pct = Math.min(100,Math.round(sc/14*100));
+    list.innerHTML=matches.map((r,i)=>{
+      const sc=scoreMatch(r,aiData), pct=Math.min(100,Math.round(sc/14*100));
       return `<button class="match-opt${i===0?' sel':''}" onclick="selectMatch(${i})" id="mopt${i}">
         <img src="${r.cover_image||''}" onerror="this.style.opacity=0">
         <div class="match-opt-info">
           <div class="match-opt-title">${esc(r.title||'')}</div>
-          <div class="match-opt-sub">${esc(r.catno||'')} • ${r.year||''} • ${esc((r.country||''))} </div>
+          <div class="match-opt-sub">${esc(r.catno||'')} • ${r.year||''} • ${esc(r.country||'')}</div>
           <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
         </div>
         <div class="match-score">${sc}pt</div>
       </button>`;
     }).join('');
-  }else{
-    section.style.display='none';
-  }
+  }else{ section.style.display='none'; }
 
   const manualUrl=`https://www.discogs.com/search/?q=${encodeURIComponent(aiData.artist+' '+aiData.title)}`;
   document.getElementById('cfManualBtn').onclick=()=>window.open(manualUrl,'_blank');
+  document.getElementById('cfAddBtn').onclick=addToInventory;
 
-  document.getElementById('cfAddBtn').onclick = addToInventory;
   openModal('moConfirm');
-  setCamLabel(match?'MATCH FOUND — CONFIRM':'NO MATCH — REVIEW','match');
-  setStatus(match?`Match found (score ${scoreMatch(match,aiData)}pt) — confirm to add`:'No Discogs match — review needed', match?'ok':'busy');
+  setStep(match?'match':'nomatch');
+  setStatus(match?`Score ${scoreMatch(match,aiData)}pt — confirm to add`:'No match found — check Review tab','ok');
 }
 
 function selectMatch(i){
-  selectedMatchIdx = i;
+  selectedMatchIdx=i;
   document.querySelectorAll('.match-opt').forEach((el,j)=>el.classList.toggle('sel',j===i));
-  // Update price for selected match
   getPrice(pendingMatches[i].id).then(p=>{
     if(p){
-      document.getElementById('cfPrice').textContent    = `$${p.price}`;
-      document.getElementById('cfPriceLbl').textContent = `${p.label} price`;
+      document.getElementById('cfPrice').textContent=`$${p.price}`;
+      document.getElementById('cfPriceLbl').textContent=p.label;
       if(!document.getElementById('cfPriceInput').value) document.getElementById('cfPriceInput').value=p.price;
     }
   });
-  const m = pendingMatches[i];
-  document.getElementById('cfMeta').textContent = `${m.catno||'—'}  •  ${m.year||''}  •  ✓ MATCH`;
+  const m=pendingMatches[i];
+  document.getElementById('cfMeta').textContent=`${m.catno||'—'}  •  ${m.year||''}  •  ✓ SELECTED`;
 }
 
 function addToInventory(){
-  const aiData = pendingAiData;
-  const match  = pendingMatches[selectedMatchIdx]||null;
-  const priceOverride = parseFloat(document.getElementById('cfPriceInput').value)||null;
+  const aiData=pendingAiData;
+  const match=pendingMatches[selectedMatchIdx]||null;
+  const priceVal=parseFloat(document.getElementById('cfPriceInput').value)||null;
+  const qty=parseInt(document.getElementById('cfQty').value)||1;
+  const vinylCond=document.querySelector('#vinylCond .cond-btn.active')?.textContent||'VG+';
+  const sleeveCond=document.querySelector('#sleeveCond .cond-btn.active')?.textContent||'VG+';
 
-  const genre = match
-    ? [...(match.style||[]),...(match.genre||[])].join(', ')
-    : (aiData.genres||[]).join(', ');
+  const genre=match
+    ?[...(match.style||[]),...(match.genre||[])].join(', ')
+    :(aiData.genres||[]).join(', ');
 
   // Duplicate check
-  const dup = records.find(r=>
-    r.artist.toLowerCase()===aiData.artist.toLowerCase() &&
-    r.title.toLowerCase() ===aiData.title.toLowerCase()
+  const dup=records.find(r=>
+    r.artist.toLowerCase()===aiData.artist.toLowerCase()&&
+    r.title.toLowerCase()===aiData.title.toLowerCase()
   );
-  if(dup && !confirm(`"${aiData.artist} — ${aiData.title}" already in inventory. Add again?`)){
+  if(dup&&!confirm(`"${aiData.artist} — ${aiData.title}" already in inventory. Add again?`)){
     closeModal('moConfirm'); resetScanUI(); return;
   }
 
@@ -542,19 +710,19 @@ function addToInventory(){
     year       : match?.year||aiData.year||'',
     tracks     : aiData.tracks||[],
     genre,
-    price      : priceOverride
-                   ? priceOverride.toFixed(2)
-                   : (pendingMatches[0] ? '0.00' : 'TBC'),
+    price      : priceVal ? priceVal.toFixed(2) : (match?'0.00':'TBC'),
     thumb      : match?.cover_image||'',
-    status     : (match && (priceOverride || pendingMatches[0])) ? 'PRICED' : 'REVIEW',
-    country    : match?.country||''
+    status     : (match||(priceVal&&priceVal>0)) ? 'PRICED' : 'REVIEW',
+    country    : match?.country||'',
+    condition  : vinylCond,
+    sleeveCondition: sleeveCond,
+    qty,
+    addedAt    : new Date().toISOString()
   };
 
-  // If no price fetched yet, do it now
-  if(rec.status==='PRICED' && rec.price==='0.00' && match){
-    getPrice(match.id).then(p=>{
-      if(p){ rec.price=p.price; save(); renderAll(); }
-    });
+  // Async price fetch if we have a match but no override yet
+  if(rec.status==='PRICED'&&rec.price==='0.00'&&match){
+    getPrice(match.id).then(p=>{ if(p){ rec.price=p.price; save(); renderAll(); } });
   }
 
   records.push(rec);
@@ -564,71 +732,88 @@ function addToInventory(){
   setStatus(`Added: ${rec.artist} — ${rec.title}`,'ok');
 }
 
-// ── RETRY (Review items) ──────────────────────────────────────────────────────
+// ── RETRY REVIEW RECORDS ──────────────────────────────────────────────────────
 async function retryRecord(id){
-  const rec = records.find(r=>r.id===id);
+  const rec=records.find(r=>r.id===id);
   if(!rec) return;
   setStatus(`Retrying: ${rec.artist}…`,'busy');
-  const matches = await discogsSearch({artist:rec.artist,title:rec.title,catalog:rec.sku,tracks:rec.tracks,year:rec.year});
-  if(!matches.length){ setStatus('Still no match found','err'); return; }
-  // Re-open confirm with fetched matches so user can pick
-  pendingAiData = {artist:rec.artist,title:rec.title,catalog:rec.sku,year:rec.year,tracks:rec.tracks,genres:rec.genre.split(',')};
-  // Remove old record so addToInventory replaces it cleanly
-  records = records.filter(r=>r.id!==id);
-  save();
-  await openConfirm(pendingAiData, matches);
+  const matches=await discogsSearch({artist:rec.artist,title:rec.title,catalog:rec.sku,tracks:rec.tracks,year:rec.year});
+  if(!matches.length){ setStatus('Still no match — try editing manually','err'); return; }
+  records=records.filter(r=>r.id!==id); save();
+  pendingAiData={artist:rec.artist,title:rec.title,catalog:rec.sku,year:rec.year,tracks:rec.tracks,genres:rec.genre.split(',')};
+  await openConfirm(pendingAiData,matches);
 }
 
 // ── EDIT ──────────────────────────────────────────────────────────────────────
 function openEdit(id){
-  const r = records.find(x=>x.id===id);
-  if(!r) return;
-  document.getElementById('editId').value     = id;
-  document.getElementById('editArtist').value = r.artist;
-  document.getElementById('editTitle').value  = r.title;
-  document.getElementById('editSku').value    = r.sku;
-  document.getElementById('editGenre').value  = r.genre;
-  document.getElementById('editPrice').value  = r.price;
+  const r=records.find(x=>x.id===id); if(!r) return;
+  document.getElementById('editId').value    =id;
+  document.getElementById('editArtist').value=r.artist;
+  document.getElementById('editTitle').value =r.title;
+  document.getElementById('editSku').value   =r.sku;
+  document.getElementById('editGenre').value =r.genre;
+  document.getElementById('editPrice').value =r.price;
+  document.getElementById('editQty').value   =r.qty||1;
+  setEditCond('vinyl',  r.condition||'VG+');
+  setEditCond('sleeve', r.sleeveCondition||'VG+');
   openModal('moEdit');
 }
 function saveEdit(){
-  const id = document.getElementById('editId').value;
-  const r  = records.find(x=>x.id===id);
-  if(!r) return;
-  r.artist = document.getElementById('editArtist').value.trim()||r.artist;
-  r.title  = document.getElementById('editTitle').value.trim()||r.title;
-  r.sku    = document.getElementById('editSku').value.trim();
-  r.genre  = document.getElementById('editGenre').value.trim();
-  const p  = parseFloat(document.getElementById('editPrice').value);
-  if(!isNaN(p) && p>0){ r.price=p.toFixed(2); r.status='PRICED'; }
+  const id=document.getElementById('editId').value;
+  const r=records.find(x=>x.id===id); if(!r) return;
+  r.artist=document.getElementById('editArtist').value.trim()||r.artist;
+  r.title =document.getElementById('editTitle').value.trim()||r.title;
+  r.sku   =document.getElementById('editSku').value.trim();
+  r.genre =document.getElementById('editGenre').value.trim();
+  r.qty   =parseInt(document.getElementById('editQty').value)||1;
+  r.condition=document.querySelector('#editVinylCond .cond-btn.active')?.textContent||r.condition;
+  r.sleeveCondition=document.querySelector('#editSleeveCond .cond-btn.active')?.textContent||r.sleeveCondition;
+  const p=parseFloat(document.getElementById('editPrice').value);
+  if(!isNaN(p)&&p>0){ r.price=p.toFixed(2); r.status='PRICED'; }
   save(); renderAll(); closeModal('moEdit');
+  setStatus(`Updated: ${r.artist} — ${r.title}`,'ok');
+}
+
+// ── CONDITION HELPERS ─────────────────────────────────────────────────────────
+function setCond(group, val){
+  const container=group==='vinyl'?'vinylCond':'sleeveCond';
+  document.querySelectorAll(`#${container} .cond-btn`).forEach(b=>{
+    b.classList.toggle('active', b.textContent===val);
+  });
+}
+function setEditCond(group, val){
+  const container=group==='vinyl'?'editVinylCond':'editSleeveCond';
+  document.querySelectorAll(`#${container} .cond-btn`).forEach(b=>{
+    b.classList.toggle('active', b.textContent===val);
+  });
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function renderAll(){
-  const inv = records.filter(r=>r.status==='PRICED');
-  const rev = records.filter(r=>r.status==='REVIEW'||r.status==='TBC');
+  const inv=records.filter(r=>r.status==='PRICED');
+  const rev=records.filter(r=>r.status!=='PRICED');
 
-  document.getElementById('listInv').innerHTML = inv.length
-    ? inv.slice().reverse().map(r=>rowHTML(r,false)).join('')
-    : `<div class="empty-state"><div class="em">💿</div><p>No priced records yet.<br>Scan a sleeve to get started.</p></div>`;
+  document.getElementById('listInv').innerHTML=inv.length
+    ?inv.slice().reverse().map(r=>rowHTML(r,false)).join('')
+    :`<div class="empty-state"><div class="em">💿</div><p>No priced records yet.<br>Scan a sleeve to get started.</p></div>`;
 
-  document.getElementById('listRev').innerHTML = rev.length
-    ? rev.slice().reverse().map(r=>rowHTML(r,true)).join('')
-    : `<div class="empty-state"><div class="em">✓</div><p>Nothing needs reviewing.</p></div>`;
+  document.getElementById('listRev').innerHTML=rev.length
+    ?rev.slice().reverse().map(r=>rowHTML(r,true)).join('')
+    :`<div class="empty-state"><div class="em">✓</div><p>Nothing needs reviewing.</p></div>`;
 
-  document.getElementById('badgeInv').textContent = inv.length;
-  const br = document.getElementById('badgeRev');
-  br.textContent = rev.length; br.style.display = rev.length?'':'none';
-
-  document.getElementById('statItems').textContent = inv.length;
-  const total = inv.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
-  document.getElementById('statVal').textContent = total.toFixed(2);
+  document.getElementById('badgeInv').textContent=inv.length;
+  const br=document.getElementById('badgeRev');
+  br.textContent=rev.length; br.style.display=rev.length?'':'none';
+  document.getElementById('statItems').textContent=inv.length;
+  const total=inv.reduce((s,r)=>s+(parseFloat(r.price)||0)*(r.qty||1),0);
+  document.getElementById('statVal').textContent=total.toFixed(2);
 }
 
-function rowHTML(r, isReview){
-  const colour = genreColour(r.genre);
-  const topGenres = (r.genre||'').split(',').slice(0,3).map(g=>`<span class="tag">${esc(g.trim())}</span>`).join('');
+function rowHTML(r,isReview){
+  const colour=genreColour(r.genre);
+  const topGenres=(r.genre||'').split(',').slice(0,2).map(g=>`<span class="tag">${esc(g.trim())}</span>`).join('');
+  const condTag=r.condition?`<span class="tag cond">${esc(r.condition)}/${esc(r.sleeveCondition||'?')}</span>`:'';
+  const qtyTag=(r.qty&&r.qty>1)?`<span class="tag">×${r.qty}</span>`:'';
   return `
     <div class="rec-row${isReview?' review':''}">
       <div class="rec-bar" style="background:${colour}"></div>
@@ -637,7 +822,7 @@ function rowHTML(r, isReview){
         <div class="rec-title">${esc(r.title)}${r.sku?` <span style="color:var(--muted2)">[${esc(r.sku)}]</span>`:''}${r.year?` <span style="color:var(--muted2)">${r.year}</span>`:''}</div>
         <div class="rec-tags">
           ${isReview?'<span class="tag warn">⚠ Review</span>':'<span class="tag ok">✓ Priced</span>'}
-          ${topGenres}
+          ${topGenres}${condTag}${qtyTag}
           ${r.country?`<span class="tag">${esc(r.country)}</span>`:''}
         </div>
       </div>
@@ -655,61 +840,105 @@ function rowHTML(r, isReview){
 }
 
 // ── CSV EXPORT ────────────────────────────────────────────────────────────────
-// Shopify-compatible + Discogs Marketplace columns in same file
+// Shopify-compatible + Discogs Marketplace columns
 function exportCSV(){
-  const rows = records.filter(r=>r.status==='PRICED' && r.price!=='TBC');
+  const rows=records.filter(r=>r.status==='PRICED'&&r.price!=='TBC');
   if(!rows.length){ alert('No priced records to export.'); return; }
 
   const headers=[
     'Handle','Title','Body (HTML)','Vendor','Tags','Published','Status',
-    'Variant SKU','Variant Price','Variant Inventory Qty','Variant Inventory Policy',
+    'Variant SKU','Variant Price','Variant Compare At Price',
+    'Variant Inventory Qty','Variant Inventory Policy',
     'Image Src',
-    // Discogs Marketplace extras
-    'Discogs Release ID','Year','Country','Catalog Number','Media Condition','Sleeve Condition'
+    'Option1 Name','Option1 Value',
+    // Discogs extras
+    'Discogs Release ID','Year','Country','Catalog Number',
+    'Media Condition','Sleeve Condition'
   ];
 
-  const lines = rows.map(r=>{
-    const handle = `${r.artist}-${r.title}`.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    const body   = r.tracks?.length ? `<b>Tracklist:</b><br>${r.tracks.map(t=>`• ${t}`).join('<br>')}` : '';
-    const tags   = ['Vinyl',...(r.genre?r.genre.split(',').map(g=>g.trim()):[])].join(', ');
+  const lines=rows.map(r=>{
+    const handle=`${r.artist}-${r.title}`.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const body=r.tracks?.length?`<b>Tracklist:</b><br>${r.tracks.map(t=>`• ${t}`).join('<br>')}`:'' ;
+    const tags=['Vinyl',...(r.genre?r.genre.split(',').map(g=>g.trim()):[])].join(', ');
+    const compareAt=(parseFloat(r.price)*1.3).toFixed(2);
     return [
-      csv(handle), csv(`${r.artist} - ${r.title}`), csv(body),
-      csv(r.artist), csv(tags), csv('TRUE'), csv('active'),
-      csv(r.sku), csv(parseFloat(r.price).toFixed(2)), csv('1'), csv('deny'),
+      csv(handle),csv(`${r.artist} - ${r.title}`),csv(body),
+      csv(r.artist),csv(tags),csv('TRUE'),csv('active'),
+      csv(r.sku),csv(parseFloat(r.price).toFixed(2)),csv(compareAt),
+      csv(r.qty||1),csv('deny'),
       csv(r.thumb||''),
-      csv(r.discogs_id||''), csv(r.year||''), csv(r.country||''),
-      csv(r.sku), csv('Very Good Plus (VG+)'), csv('Very Good Plus (VG+)')
+      csv('Condition'),csv(`${r.condition||'VG+'}/${r.sleeveCondition||'VG+'}`),
+      csv(r.discogs_id||''),csv(r.year||''),csv(r.country||''),
+      csv(r.sku),csv(r.condition||'Very Good Plus (VG+)'),csv(r.sleeveCondition||'Very Good Plus (VG+)')
     ].join(',');
   });
 
-  const blob = new Blob([[headers.join(','),...lines].join('\n')],{type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `vinylshop_${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
+  const blob=new Blob([[headers.join(','),...lines].join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`vinylshop_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
 }
 function csv(v){ return `"${String(v==null?'':v).replace(/"/g,'""')}"`; }
 
+// ── API KEY VALIDATION ────────────────────────────────────────────────────────
+async function validateAndSave(){
+  const geminiKey  = document.getElementById('cfgGemini').value.trim();
+  const discogsKey = document.getElementById('cfgDiscogs').value.trim();
+
+  if(!geminiKey||!discogsKey){ alert('Gemini and Discogs keys are required.'); return; }
+
+  document.getElementById('validateBtn').textContent='Validating…';
+  document.getElementById('validateBtn').disabled=true;
+
+  const gs=document.getElementById('geminiStatus');
+  const ds=document.getElementById('discogsStatus');
+
+  // Test Discogs
+  ds.className='key-status busy'; ds.textContent='Testing Discogs…';
+  try{
+    const dr=await fetch(`https://api.discogs.com/database/search?q=test&per_page=1&token=${discogsKey}`);
+    if(dr.ok){ ds.className='key-status ok'; ds.textContent='✓ Discogs token valid'; }
+    else{ ds.className='key-status err'; ds.textContent=`✕ Discogs error ${dr.status}`; }
+  }catch(e){ ds.className='key-status err'; ds.textContent='✕ Discogs unreachable (proxy needed)'; }
+
+  // Test Gemini
+  gs.className='key-status busy'; gs.textContent='Testing Gemini…';
+  try{
+    const gr=await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`);
+    if(gr.ok){ gs.className='key-status ok'; gs.textContent='✓ Gemini key valid'; }
+    else{ gs.className='key-status err'; gs.textContent=`✕ Gemini error ${gr.status}`; }
+  }catch(e){ gs.className='key-status err'; gs.textContent='✕ Gemini unreachable'; }
+
+  document.getElementById('validateBtn').textContent='Validate & Save';
+  document.getElementById('validateBtn').disabled=false;
+
+  const bothOk=gs.className.includes('ok')&&(ds.className.includes('ok')||ds.className.includes('err'));
+  if(gs.className.includes('ok')){
+    setTimeout(()=>{ saveSettings(); },800);
+  }
+}
+
 // ── BACKUP / RESTORE ──────────────────────────────────────────────────────────
 function backupJSON(){
-  const blob = new Blob([JSON.stringify(records,null,2)],{type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `vinylshop_backup_${new Date().toISOString().split('T')[0]}.json`;
+  const blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`vinylshop_backup_${new Date().toISOString().split('T')[0]}.json`;
   a.click();
 }
 function restoreJSON(e){
-  const file = e.target.files[0]; if(!file) return;
-  const fr = new FileReader();
-  fr.onload = ev=>{
+  const file=e.target.files[0]; if(!file) return;
+  const fr=new FileReader();
+  fr.onload=ev=>{
     try{
-      const data = JSON.parse(ev.target.result);
+      const data=JSON.parse(ev.target.result);
       if(!Array.isArray(data)) throw new Error('Not an array');
-      if(confirm(`Import ${data.length} records? This will MERGE with current inventory.`)){
-        // Merge — skip exact duplicates by id
-        const existingIds = new Set(records.map(r=>r.id));
-        const newOnes = data.filter(r=>!existingIds.has(r.id));
-        records = [...records,...newOnes];
+      if(confirm(`Import ${data.length} records? Will merge with current inventory (no duplicates by ID).`)){
+        const existingIds=new Set(records.map(r=>r.id));
+        const newOnes=data.filter(r=>!existingIds.has(r.id));
+        records=[...records,...newOnes];
         save(); renderAll();
         setStatus(`Restored ${newOnes.length} records`,'ok');
       }
@@ -717,6 +946,22 @@ function restoreJSON(e){
   };
   fr.readAsText(file);
   e.target.value='';
+}
+
+// ── SHEETS SYNC ───────────────────────────────────────────────────────────────
+function syncToSheets(r){
+  if(!SHEETS_URL) return;
+  fetch(SHEETS_URL,{
+    method:'POST',mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      id:r.id,discogs_id:r.discogs_id,artist:r.artist,title:r.title,
+      catalog:r.sku,genre:r.genre,year:r.year,price:r.price,
+      tracks:r.tracks.join(' | '),image_url:r.thumb,
+      country:r.country,status:r.status,
+      condition:r.condition,sleeve_condition:r.sleeveCondition,qty:r.qty
+    })
+  });
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
@@ -729,35 +974,16 @@ function openModal(id)  { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 function switchTab(tab){
   currentTab=tab;
-  document.getElementById('listInv').style.display = tab==='inv'?'':'none';
-  document.getElementById('listRev').style.display = tab==='rev'?'':'none';
+  document.getElementById('listInv').style.display=tab==='inv'?'':'none';
+  document.getElementById('listRev').style.display=tab==='rev'?'':'none';
   document.getElementById('tab-inv').classList.toggle('active',tab==='inv');
   document.getElementById('tab-rev').classList.toggle('active',tab==='rev');
 }
-function resetScanUI(){
-  setCamLabel('Aim at tracklist or centre label',false);
-  setStatus('Ready','ok');
-}
-function setCamLabel(text,scanning){
-  const el=document.getElementById('camLabel');
-  el.textContent=text;
-  el.classList.toggle('scanning',scanning);
-  el.classList.toggle('match',!scanning && text.includes('FOUND'));
-}
+function resetScanUI(){ setStep('idle'); setStatus('Ready','ok'); }
 function setStatus(text,state){
   document.getElementById('statusText').textContent=text;
   const dot=document.getElementById('statusDot');
   dot.className='dot'+(state==='busy'?' busy':state==='err'?' err':'');
-}
-function syncToSheets(r){
-  if(!SHEETS_URL) return;
-  fetch(SHEETS_URL,{
-    method:'POST',mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({id:r.id,artist:r.artist,title:r.title,catalog:r.sku,
-      genre:r.genre,year:r.year,price:r.price,tracks:r.tracks.join(' | '),
-      image_url:r.thumb,discogs_id:r.discogs_id,country:r.country})
-  });
 }
 function saveSettings(){
   localStorage.setItem('vg',document.getElementById('cfgGemini').value.trim());
@@ -766,9 +992,9 @@ function saveSettings(){
   location.reload();
 }
 function openSettings(){
-  document.getElementById('cfgGemini').value  = API_KEY;
-  document.getElementById('cfgDiscogs').value = DISCOGS_TOKEN;
-  document.getElementById('cfgSheets').value  = SHEETS_URL;
+  document.getElementById('cfgGemini').value=API_KEY;
+  document.getElementById('cfgDiscogs').value=DISCOGS_TOKEN;
+  document.getElementById('cfgSheets').value=SHEETS_URL;
   openModal('moSetup');
 }
 </script>
